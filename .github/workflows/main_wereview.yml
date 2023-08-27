@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  DATABASE_CONNECTION_STRING: ${{ secrets.DATABASE_CONNECTION_STRING }}
+
 jobs:
   build:
     runs-on: windows-latest
