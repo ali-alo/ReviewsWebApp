@@ -9,12 +9,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  DATABASE_CONNECTION_STRING: ${{ secrets.DATABASE_CONNECTION_STRING }}
-  AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
-  AZURE_CLI_LOGIN: ${{ secrets.AZURE_CLI_LOGIN }}
-
 jobs:
   build:
     runs-on: windows-latest
@@ -57,17 +51,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: 'WeReview'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4C1490F9170E4894B3C27106EB813DE8 }}
           package: .
-
-      - name: Azure CLI Login
-        run: |
-          az login --service-principal -u ${{ secrets.AZURE_CLI_LOGIN_APP_ID }} -p ${{ secrets.AZURE_CLI_LOGIN_SECRET }} --tenant ${{ secrets.AZURE_CLI_LOGIN_TENANT }}
-        env:
-          AZURE_CLI_LOGIN_DISABLE: 'Yes'
-
-      - name: Set Azure Web App Configuration
-        run: |
-          az webapp config appsettings set --name "${{ env.AZURE_WEBAPP_NAME }}" --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" --settings "DATABASE_CONNECTION_STRING=${{ secrets.DATABASE_CONNECTION_STRING }}"
