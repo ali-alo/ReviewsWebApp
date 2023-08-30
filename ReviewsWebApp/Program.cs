@@ -28,6 +28,18 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 });
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    })
+    .AddTwitter(options =>
+    {
+        options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerAPIKey"];
+        options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+        options.AccessDeniedPath = "/";
+    });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
