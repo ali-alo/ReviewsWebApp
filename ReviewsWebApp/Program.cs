@@ -1,21 +1,26 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
+using ReviewsWebApp.Services;
+using ReviewsWebApp.Services.Interfaces;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-builder.Services.AddControllersWithViews().AddViewLocalization();
+var services = builder.Services;
+var config = builder.Configuration;
+var connectionString = config.GetConnectionString("DefaultConnection");
 
-builder.Services.Configure<RequestLocalizationOptions>(options => 
+services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+services.AddDatabaseDeveloperPageExceptionFilter();
+services.AddDefaultIdentity<ApplicationUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+services.AddLocalization(options => options.ResourcesPath = "Resources");
+services.AddControllersWithViews().AddViewLocalization();
+
+services.Configure<RequestLocalizationOptions>(options => 
 {
     var supportedCultures = new[]
     {
@@ -28,16 +33,17 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 });
 
-builder.Services.AddAuthentication()
+services.AddTransient<IImageService, ImageService>();
+services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = config["Authentication:Google:ClientId"];
+        options.ClientSecret = config["Authentication:Google:ClientSecret"];
     })
     .AddTwitter(options =>
     {
-        options.ConsumerKey = builder.Configuration["Authentication:Twitter:ConsumerAPIKey"];
-        options.ConsumerSecret = builder.Configuration["Authentication:Twitter:ConsumerSecret"];
+        options.ConsumerKey = config["Authentication:Twitter:ConsumerAPIKey"];
+        options.ConsumerSecret = config["Authentication:Twitter:ConsumerSecret"];
         options.AccessDeniedPath = "/";
     });
 var app = builder.Build();
