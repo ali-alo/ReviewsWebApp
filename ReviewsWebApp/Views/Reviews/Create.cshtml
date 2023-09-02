@@ -1,0 +1,22 @@
+﻿@model ReviewsWebApp.DTOs.ReviewDto
+
+<div class="text-center">
+    <h1 class="display-u">Upload pictures here.</h1>
+    @*<form asp-action="Create" asp-controller="Reviews" method="post">
+
+
+    </form>*@
+
+    @using (Html.BeginForm("Create", "Reviews", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <div class ="mt-3">
+                @Html.EditorFor(m => m.File, new {@class="form-control"})
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    }
+</div>

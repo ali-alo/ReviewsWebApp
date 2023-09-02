@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
+using ReviewsWebApp.Options;
 using ReviewsWebApp.Services;
 using ReviewsWebApp.Services.Interfaces;
 using System.Globalization;
@@ -32,6 +33,7 @@ services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
 
 });
+services.Configure<AzureOptions>(config.GetSection("Azure"));
 
 services.AddTransient<IImageService, ImageService>();
 services.AddAuthentication()

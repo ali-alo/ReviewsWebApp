@@ -2,6 +2,7 @@
 {
     public interface IImageService
     {
-        void UploadImageToAzure(IFormFile file);
+        string GetContainerLink();
+        Task UploadImageToAzure(IFormFile file);
     }
 }
