@@ -1,4 +1,4 @@
-﻿@model ReviewsWebApp.DTOs.ReviewDto
+﻿@model ReviewCreateDto
 
 <div class="text-center">
     <h1 class="display-u">Upload pictures here.</h1>
@@ -13,10 +13,62 @@
 
         <div class="form-group">
             <div class ="mt-3">
-                @Html.EditorFor(m => m.File, new {@class="form-control"})
+                <div class="img-input-div w-100 d-flex justify-content-center align-items-center text-center position-relative">
+                    <p>You can drag & drop photos here or click to browse</p>
+                    @Html.EditorFor(m => m.Files, new { htmlAttributes = new { @class = "form-control file h-100 w-100 position-absolute cursor-pointer", id = "img-input", multiple = "multiple", accept = "image/jpeg, image/png, image/jpg, image/gif, image/bmp" }
+                    })
+                </div>
             </div>
         </div>
+
+        <output class="w-100 d-flex justify-content-start flex-wrap position-relative mt-3"></output>
 
         <button type="submit" class="btn btn-primary mt-3">Submit</button>
     }
 </div>
+
+<script>
+    const output = document.querySelector("output");
+    const imgInput = document.getElementById("img-input");
+    let imagesArray = []
+
+    imgInput.addEventListener("change", () => {
+        const files = imgInput.files
+        for (let i = 0; i < files.length; i++) {
+            addImage(files[i]);
+        }
+        displayImages()
+    })
+    
+    function addImage(file) {
+        if (!file.type.match("image")) return;
+        if (imagesArray.every(image => image.name !== file.name))
+            imagesArray.push(file)
+    }
+
+    function displayImages() {
+        let images = ""
+        imagesArray.forEach((image, index) => {
+            images += `<div class="image overflow-hidden position-relative">
+                    <img src="${URL.createObjectURL(image)}" alt="image" class="w-100 h-100 img-clickable cursor-pointer">
+                    <span onclick="deleteImage(${index})" class="text-danger fs-2 cursor-pointer position-absolute">&times;</span>
+                  </div>`
+        })
+        output.innerHTML = images
+        updateInputFiles();
+        addImageClickEvents();
+    }
+
+    function deleteImage(index) {
+        imagesArray.splice(index, 1)
+        displayImages()
+    }
+
+    function updateInputFiles() {
+        const updatedFiles = new DataTransfer();
+        imagesArray.forEach((file) => {
+            updatedFiles.items.add(new File([file], file.name, { type: file.type }));
+        });
+        imgInput.files = updatedFiles.files;
+    }
+</script>

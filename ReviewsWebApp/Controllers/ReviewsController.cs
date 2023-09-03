@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ReviewsWebApp.Areas.Identity;
 using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Services.Interfaces;
 
@@ -12,6 +14,7 @@ namespace ReviewsWebApp.Controllers
             _imageService = imageService;
         }
 
+        [Authorize(Roles = ApplicationRoleTypes.Admin)]
         public IActionResult Index()
         {
             ViewData["ContainerLink"] = _imageService.GetContainerLink();
@@ -25,9 +28,12 @@ namespace ReviewsWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ReviewDto reviewDto)
+        public async Task<IActionResult> Create(ReviewCreateDto reviewDto)
         {
-            await _imageService.UploadImageToAzure(reviewDto.File);
+                foreach (var imgFile in reviewDto.Files)
+                {
+                    await _imageService.UploadImageToAzure(imgFile);
+                }
             return RedirectToAction("Index");
         }
     }

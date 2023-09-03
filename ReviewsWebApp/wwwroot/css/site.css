@@ -26,3 +26,55 @@ h1, h2, h3 {
     outline: none;
     box-shadow: none;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.img-input-div {
+    height: 200px;
+    border-radius: 5px;
+    border: 2px dotted black;
+}
+
+.file {
+    opacity: 0;
+}
+
+output {
+    gap: 15px;
+    border-radius: 5px;
+}
+
+    output .image {
+        height: 150px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+    }
+
+        output .image span {
+            top: -4px;
+            right: 4px;
+        }
+
+            output .image span:hover {
+                opacity: 0.8;
+            }
+
+    output .span--hidden {
+        visibility: hidden;
+    }
+
+#fullpage {
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: contain;
+    background-repeat: no-repeat no-repeat;
+    background-position: center center;
+    background-color: rgba(0, 0, 0, 0.8);
+}

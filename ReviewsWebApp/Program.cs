@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
@@ -17,6 +18,7 @@ services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 services.AddDatabaseDeveloperPageExceptionFilter();
 services.AddDefaultIdentity<ApplicationUser>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 services.AddLocalization(options => options.ResourcesPath = "Resources");
 services.AddControllersWithViews().AddViewLocalization();
