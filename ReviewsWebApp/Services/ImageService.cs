@@ -18,14 +18,15 @@ namespace ReviewsWebApp.Services
 
         public string GetContainerLink() => _azureOptions.ContainerLink;
 
-        public async Task UploadImageToAzure(IFormFile file)
+        public async Task<string> UploadImageToAzure(IFormFile file)
         {
             string fileExtension = Path.GetExtension(file.FileName).ToLower();
             if (!IsImageExtension(fileExtension))
-                return;
+                return string.Empty;
             using var fileUploadStream = await ConvertFormFileToMemoryStream(file);
             string uniqueName = GenerateUniqueBlobName(fileExtension);
             await UploadFileToAzureBlobStorage(uniqueName, fileUploadStream);
+            return uniqueName;
         }
 
         private bool IsImageExtension(string fileExtension)

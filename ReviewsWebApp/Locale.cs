@@ -1,4 +1,4 @@
-﻿namespace ReviewsWebApp.Models
+﻿namespace ReviewsWebApp
 {
     public enum Locale
     {

@@ -1,0 +1,7 @@
+﻿@model IEnumerable<ReviewItem>
+
+@foreach (var review in Model)
+{
+    <h2>@review.Name</h2>
+    <img src="@ViewData["ContainerLink"]@review.ImageGuid" class="img-clickable cursor-pointer" />
+}

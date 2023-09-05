@@ -1,12 +1,13 @@
-﻿using ReviewsWebApp.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using ReviewsWebApp.Models;
 
 namespace ReviewsWebApp.DTOs
 {
     public class ReviewCreateDto
     {
-        public List<IFormFile> Files { get; set; }
-        [MaxLength(40, ErrorMessageResourceName = "TitlePropertyLong")]
+        public List<IFormFile> Files { get; set; } = new List<IFormFile>();
+        [Display(Name = "Title", ResourceType = typeof(Resources.Models.ReviewResource))]
+        [MaxLength(40, ErrorMessageResourceType = typeof(Resources.Models.ReviewResource), ErrorMessageResourceName = "TitlePropertyLong")]
         public string Title { get; set; } = string.Empty;
         public string MarkdownText { get; set; } = string.Empty;
         [Range(0, 10)]

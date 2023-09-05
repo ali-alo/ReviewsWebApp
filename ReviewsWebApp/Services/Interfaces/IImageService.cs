@@ -3,6 +3,6 @@
     public interface IImageService
     {
         string GetContainerLink();
-        Task UploadImageToAzure(IFormFile file);
+        Task<string> UploadImageToAzure(IFormFile file);
     }
 }

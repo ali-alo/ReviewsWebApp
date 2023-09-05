@@ -2,14 +2,21 @@
 
 <div class="text-center">
     <h1 class="display-u">Upload pictures here.</h1>
-    @*<form asp-action="Create" asp-controller="Reviews" method="post">
-
-
-    </form>*@
-
     @using (Html.BeginForm("Create", "Reviews", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="MarkdownText" class="form-label"></label>
+            <textarea asp-for="MarkdownText" class="form-control" ></textarea>
+            <span asp-validation-for="MarkdownText" class="text-danger"></span>
+        </div>
 
         <div class="form-group">
             <div class ="mt-3">

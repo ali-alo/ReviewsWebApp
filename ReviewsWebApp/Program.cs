@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
 using ReviewsWebApp.Options;
+using ReviewsWebApp.Repositories;
+using ReviewsWebApp.Repositories.Interfaces;
 using ReviewsWebApp.Services;
 using ReviewsWebApp.Services.Interfaces;
 using System.Globalization;
@@ -38,6 +40,7 @@ services.Configure<RequestLocalizationOptions>(options =>
 services.Configure<AzureOptions>(config.GetSection("Azure"));
 
 services.AddTransient<IImageService, ImageService>();
+services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
 services.AddAuthentication()
     .AddGoogle(options =>
     {

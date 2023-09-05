@@ -21,13 +21,15 @@ namespace ReviewsWebApp.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Create()
         {
-            return View();
+            return View(new ReviewCreateDto());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create(ReviewCreateDto reviewDto)
         {
                 foreach (var imgFile in reviewDto.Files)

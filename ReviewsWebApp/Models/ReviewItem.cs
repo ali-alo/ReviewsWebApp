@@ -8,7 +8,7 @@ namespace ReviewsWebApp.Models
         [MaxLength(100)]
         public string Name { get; set; }
         [MaxLength(100)]
-        public string ImageLink { get; set; }
+        public string ImageGuid { get; set; }
         public List<Review> Reviews { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Models;
-using System.Reflection.Emit;
 
 namespace ReviewsWebApp.Data
 {
@@ -10,6 +9,7 @@ namespace ReviewsWebApp.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<ReviewGroup> ReviewsGroup { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<ReviewItem> ReviewsItems { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
