@@ -117,16 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home" xml:space="preserve">
-    <value>Home</value>
+  <data name="AddOneImageHere" xml:space="preserve">
+    <value>Перетащите одну фотографию сюда или нажмите для выбора</value>
   </data>
-  <data name="Language" xml:space="preserve">
-    <value>English</value>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
   </data>
-  <data name="ReviewItems" xml:space="preserve">
-    <value>Review Items</value>
-  </data>
-  <data name="Reviews" xml:space="preserve">
-    <value>Reviews</value>
+  <data name="Save" xml:space="preserve">
+    <value>Сохранить</value>
+    <comment>Submit</comment>
   </data>
 </root>

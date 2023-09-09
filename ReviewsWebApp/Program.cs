@@ -39,6 +39,7 @@ services.Configure<RequestLocalizationOptions>(options =>
 });
 services.Configure<AzureOptions>(config.GetSection("Azure"));
 
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddTransient<IImageService, ImageService>();
 services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
 services.AddAuthentication()

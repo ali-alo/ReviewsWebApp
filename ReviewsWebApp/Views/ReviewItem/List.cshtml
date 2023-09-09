@@ -1,7 +1,30 @@
-﻿@model IEnumerable<ReviewItem>
+﻿@using Microsoft.AspNetCore.Identity;
+@using ReviewsWebApp.Areas.Identity;
+@using ReviewsWebApp.Data;
+@inject IViewLocalizer _localizer
+@inject UserManager<ApplicationUser> UserManager
+@model ReviewItemsListViewModel
 
-@foreach (var review in Model)
+
+@if (User.IsInRole(ApplicationRoleTypes.Admin))
 {
-    <h2>@review.Name</h2>
-    <img src="@ViewData["ContainerLink"]@review.ImageGuid" class="img-clickable cursor-pointer" />
+    <a class="btn btn-primary" asp-controller="ReviewItem" asp-action="Create">@_localizer["CreateNew"]</a>
 }
+<div class="row">
+    @foreach (var review in Model.Items)
+    {
+        <div class="col-3 mt-4">
+            <div class="card">
+                <img src="@(Model.ContainerLink +  review.ImageGuid)" class="img-clickable cursor-pointer card-img-top h-200p" alt="Item image" />
+                <div class="card-body">
+                    <h5 class="card-title">@review.Name</h5>
+                    <p class="card-text">@review.Description</p>
+                    @if (User.IsInRole(ApplicationRoleTypes.Admin))
+                    {
+                        <a asp-action="Edit" asp-controller="ReviewItem" asp-route-id="@review.Id" class="btn btn-primary">@_localizer["Edit"]</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div >

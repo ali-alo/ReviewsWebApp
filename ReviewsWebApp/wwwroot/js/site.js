@@ -3,13 +3,10 @@
 
 // Write your JavaScript code.
 function addImageClickEvents() {
-    console.log("addImageClickEvents called");
     const imgs = document.querySelectorAll(".img-clickable");
     const fullPage = document.querySelector("#fullpage");
     imgs.forEach(img => {
         img.addEventListener("click", function () {
-            console.log("Image clicked");
-            console.log(`url(${img.src})`);
             fullPage.style.backgroundImage = `url(${img.src})`;
             fullPage.style.display = "block";
         })

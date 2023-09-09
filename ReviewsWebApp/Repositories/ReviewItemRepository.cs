@@ -20,9 +20,13 @@ namespace ReviewsWebApp.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task DeleteReviewItem(int id)
+        public async Task DeleteReviewItem(int id)
         {
-            throw new NotImplementedException();
+            var reviewItem = await GetReviewItemById(id);
+            if (reviewItem == null)
+                return;
+            _context.ReviewsItems.Remove(reviewItem);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<ReviewItem>> GetAllReviewItems()
@@ -30,14 +34,20 @@ namespace ReviewsWebApp.Repositories
             return await _context.ReviewsItems.AsNoTracking().ToListAsync();
         }
 
-        public Task<ReviewItem?> GetReviewItemById(int id)
+        public async Task<ReviewItem?> GetReviewItemById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.ReviewsItems.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task UpdateReviewItem(ReviewItem item)
+        public async Task UpdateReviewItem(ReviewItem item)
         {
-            throw new NotImplementedException();
+            var review = await GetReviewItemById(item.Id);
+            if (review == null)
+                return;
+            review.Name = item.Name;
+            review.Description = item.Description;
+            review.ImageGuid = item.ImageGuid;
+            await _context.SaveChangesAsync();
         }
     }
 }

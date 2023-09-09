@@ -61,6 +61,24 @@ namespace ReviewsWebApp.Resources.Models {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Description.
+        /// </summary>
+        public static string Description {
+            get {
+                return ResourceManager.GetString("Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to provide a description.
+        /// </summary>
+        public static string DescriptionRequired {
+            get {
+                return ResourceManager.GetString("DescriptionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Image.
         /// </summary>
         public static string Image {

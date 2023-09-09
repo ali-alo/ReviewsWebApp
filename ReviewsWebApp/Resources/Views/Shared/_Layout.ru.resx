@@ -123,6 +123,9 @@
   <data name="Language" xml:space="preserve">
     <value>Русский</value>
   </data>
+  <data name="ReviewItems" xml:space="preserve">
+    <value>Произведения</value>
+  </data>
   <data name="Reviews" xml:space="preserve">
     <value>Обзоры</value>
   </data>

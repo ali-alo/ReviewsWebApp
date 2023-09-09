@@ -67,7 +67,7 @@ output {
 
 #fullpage {
     display: none;
-    position: absolute;
+    position: fixed;
     z-index: 9999;
     top: 0;
     left: 0;
@@ -77,4 +77,9 @@ output {
     background-repeat: no-repeat no-repeat;
     background-position: center center;
     background-color: rgba(0, 0, 0, 0.8);
+}
+
+.h-200p {
+    height: 200px;
+    width: auto;
 }

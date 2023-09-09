@@ -1,9 +1,12 @@
 ﻿@inject IViewLocalizer _localizer
-@model ReviewItemCreateDto
+@model ReviewItemDto
 
 <h2 class="text-center">Review Item Create Page</h2>
 
-<form asp-antiforgery="true" asp-action="Create" asp-controller="ReviewItem" method="post" enctype="multipart/form-data">
+<form asp-antiforgery="true" asp-action="Edit" asp-controller="ReviewItem" method="post" enctype="multipart/form-data">
+    
+    <input asp-for="Id" class="form-control visually-hidden" disabled/>
+
     <div class="form-group">
         <label asp-for="Name" class="form-label"></label>
         <input asp-for="Name" class="form-control" />
@@ -27,7 +30,10 @@
     </div>
 
     <output class="w-100 d-flex justify-content-start flex-wrap position-relative mt-3"></output>
-    <button type="submit" class="btn btn-primary mt-3">@_localizer["Submit"]</button>
+    <div class="d-flex flex-end mt-3">
+        <button type="submit" class="btn btn-primary me-3">@_localizer["Save"]</button>
+        <a class="btn btn-danger" asp-action="Delete" asp-controller="ReviewItem" asp-route-id="@Model.Id">@_localizer["Delete"]</a>
+    </div>
 </form>
 
 <script>
@@ -46,9 +52,9 @@
     function displayImage() {
         if (!image) return;
         output.innerHTML = `<div class="image overflow-hidden position-relative">
-                        <img src="${URL.createObjectURL(image)}" alt="image" class="w-100 h-100 img-clickable cursor-pointer">
-                        <span onclick="deleteImage()" class="text-danger fs-2 cursor-pointer position-absolute">&times;</span>
-                    </div>`;
+                            <img src="${URL.createObjectURL(image)}" alt="image" class="w-100 h-100 img-clickable cursor-pointer">
+                            <span onclick="deleteImage()" class="text-danger fs-2 cursor-pointer position-absolute">&times;</span>
+                        </div>`;
         addImageClickEvents();
     }
 
@@ -56,5 +62,5 @@
         image = null;
         output.innerHTML = "";
         imgInput.value = "";
-        }
+    }
 </script>
