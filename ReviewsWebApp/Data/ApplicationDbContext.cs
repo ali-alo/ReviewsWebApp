@@ -19,7 +19,8 @@ namespace ReviewsWebApp.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<ReviewGroup>().HasIndex(rg => rg.Name).IsUnique();
+            builder.Entity<ReviewGroup>().HasIndex(rg => rg.NameEn).IsUnique();
+            builder.Entity<ReviewGroup>().HasIndex(rg => rg.NameRu).IsUnique();
             builder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
 
             builder.Entity<Review>()
@@ -37,12 +38,9 @@ namespace ReviewsWebApp.Data
             builder.Entity<ReviewGroup>().HasData(
                 new ReviewGroup[]
                 {
-                    new ReviewGroup {Id = 1, Name = "Movies", Locale = Locale.English},
-                    new ReviewGroup {Id = 2, Name = "Кино", Locale = Locale.Russian},
-                    new ReviewGroup {Id = 3, Name = "Books", Locale = Locale.English},
-                    new ReviewGroup {Id = 4, Name = "Книги", Locale = Locale.Russian},
-                    new ReviewGroup {Id = 5, Name = "Games", Locale = Locale.English},
-                    new ReviewGroup {Id = 6, Name = "Игры", Locale = Locale.Russian},
+                    new ReviewGroup {Id = 100, NameEn = "Movies", NameRu = "Кино"},
+                    new ReviewGroup {Id = 101, NameEn = "Books", NameRu = "Книги"},
+                    new ReviewGroup {Id = 201, NameEn = "Games", NameRu = "Игры"}
                 });
         }
     }

@@ -39,6 +39,11 @@ namespace ReviewsWebApp.Repositories
             return await _context.ReviewsItems.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<bool> ReviewItemExists(int id)
+        {
+            return await _context.ReviewsItems.AnyAsync(i => i.Id == id);
+        }
+
         public async Task UpdateReviewItem(ReviewItem item)
         {
             var review = await GetReviewItemById(item.Id);

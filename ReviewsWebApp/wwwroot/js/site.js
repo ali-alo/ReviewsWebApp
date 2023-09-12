@@ -13,5 +13,30 @@ function addImageClickEvents() {
     })
 }
 
-
 addImageClickEvents();
+
+
+// code for markdown display
+const converter = new showdown.Converter();
+const markdownInput = document.getElementById("markdownInput");
+const markdownPreview = document.getElementById("markdownPreview");
+
+function updatePreview() {
+    const markdownText = markdownInput.value;
+    const html = converter.makeHtml(markdownText);
+    markdownPreview.innerHTML = html;
+}
+
+function transformMarkdownText() {
+    const markdownElems = document.querySelectorAll(".markdown");
+    markdownElems.forEach(e => {
+        const html = converter.makeHtml(e.innerHTML);
+        e.innerHTML = html;
+    })
+}
+
+if (markdownInput !== null) {
+    markdownInput.addEventListener("input", updatePreview);
+    updatePreview();
+}
+transformMarkdownText();

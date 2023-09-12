@@ -9,5 +9,6 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task CreateReviewItem(ReviewItem item);
         Task UpdateReviewItem(ReviewItem item);
         Task DeleteReviewItem(int id);
+        Task<bool> ReviewItemExists(int id);
     }
 }

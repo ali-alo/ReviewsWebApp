@@ -41,7 +41,10 @@ services.Configure<AzureOptions>(config.GetSection("Azure"));
 
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddTransient<IImageService, ImageService>();
+services.AddTransient<ITagService, TagService>();
 services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
+services.AddScoped<IReviewRepository, ReviewRepository>();
+services.AddScoped<IReviewGroupRepository, ReviewGroupRepository>();
 services.AddAuthentication()
     .AddGoogle(options =>
     {

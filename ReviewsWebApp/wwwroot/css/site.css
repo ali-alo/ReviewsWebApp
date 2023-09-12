@@ -69,6 +69,7 @@ output {
     display: none;
     position: fixed;
     z-index: 9999;
+
     top: 0;
     left: 0;
     width: 100vw;
@@ -83,3 +84,33 @@ output {
     height: 200px;
     width: auto;
 }
+
+.img-clickable {
+    cursor: pointer;
+}
+
+.carousel-image-list {
+    max-height: 600px;
+}
+
+.card-text.markdown,
+.card-text.markdown h5,
+.card-text.markdown h6 {
+    font-size: 0.6rem;
+}
+
+    .card-text.markdown h1{
+        font-size: 1rem; 
+    }
+
+    .card-text.markdown h2 {
+        font-size: 0.9rem;
+    }
+
+    .card-text.markdown h3 {
+        font-size: 0.8rem;
+    }
+
+    .card-text.markdown h4 {
+        font-size: 0.7rem;
+    }

@@ -1,4 +1,6 @@
-﻿@inject IViewLocalizer _localizer;
+﻿@using System.Security.Claims;
+@inject IViewLocalizer _localizer;
+@model ReviewsIndexViewModel
 
 @{
     ViewData["Title"] = _localizer["Title"];
@@ -6,5 +8,24 @@
 
 <h1>@_localizer["Header"]</h1>
 
-<img src="@ViewData["ContainerLink"]061d7a58-5eb4-4270-801d-660dc3e9d8cb.png" class="img-clickable cursor-pointer"/>
-<img src="@ViewData["ContainerLink"]b496865f-6806-44ac-b492-7586771ac5f8.jpg" />
+<div class="row">
+    @foreach(var review in Model.Reviews)
+    {
+        <div class="col-3 mt-4">
+            <div class="card">
+                <img src="@(Model.ContainerLink +  review.Images[0].ImageGuid)" class="img-clickable card-img-top h-200p" alt="Review image" />
+                <div class="card-body">
+                    <h5 class="card-header">@review.ReviewItem.Name</h5>
+                    <h5 class="card-title mt-2">@review.Title</h5>
+                    <div class="card-text markdown mt-3">@review.MarkdownText</div>
+                    <p class="text-end">@(review.ApplicationUser == null ? "Deleted Account" : $"{review.ApplicationUser.FirstName} {review.ApplicationUser.LastName}")</p>
+                    <a asp-action="Create" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-secondary">Rate review</a>
+                    @if (review.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    {
+                        <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-warning">Edit</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

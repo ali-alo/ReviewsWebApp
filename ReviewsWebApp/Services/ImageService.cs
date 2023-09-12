@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
+using ReviewsWebApp.Models;
 using ReviewsWebApp.Options;
 using ReviewsWebApp.Services.Interfaces;
 
@@ -55,6 +56,18 @@ namespace ReviewsWebApp.Services
             {
                 HttpHeaders = new BlobHttpHeaders { ContentType = "image/bitmap" }
             });
+        }
+
+        public async Task<List<Image>> UploadImagesToAzure(List<IFormFile> files)
+        {
+            var images = new List<Image>();
+            foreach (var imgFile in files)
+            {
+                string imageGuid = await UploadImageToAzure(imgFile);
+                if (!string.IsNullOrEmpty(imageGuid))
+                    images.Add(new Image { ImageGuid = imageGuid});
+            }
+            return images;
         }
     }
 }
