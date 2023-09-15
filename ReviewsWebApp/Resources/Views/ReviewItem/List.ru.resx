@@ -123,4 +123,7 @@
   <data name="Edit" xml:space="preserve">
     <value>Изменить</value>
   </data>
+  <data name="ReadMore" xml:space="preserve">
+    <value>Узнать больше</value>
+  </data>
 </root>

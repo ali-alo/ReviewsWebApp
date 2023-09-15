@@ -274,9 +274,6 @@ namespace ReviewsWebApp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ReviewGroupId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ReviewItemId")
                         .HasColumnType("int");
 
@@ -288,8 +285,6 @@ namespace ReviewsWebApp.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
-
-                    b.HasIndex("ReviewGroupId");
 
                     b.HasIndex("ReviewItemId");
 
@@ -353,7 +348,11 @@ namespace ReviewsWebApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionRu")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -362,12 +361,22 @@ namespace ReviewsWebApp.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("NameEn")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("NameRu")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ReviewGroupId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ReviewGroupId");
 
                     b.ToTable("ReviewsItems");
                 });
@@ -460,12 +469,6 @@ namespace ReviewsWebApp.Data.Migrations
                         .WithMany("Reviews")
                         .HasForeignKey("CreatorId");
 
-                    b.HasOne("ReviewsWebApp.Models.ReviewGroup", "ReviewGroup")
-                        .WithMany("Reviews")
-                        .HasForeignKey("ReviewGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("ReviewsWebApp.Models.ReviewItem", "ReviewItem")
                         .WithMany("Reviews")
                         .HasForeignKey("ReviewItemId")
@@ -474,9 +477,18 @@ namespace ReviewsWebApp.Data.Migrations
 
                     b.Navigation("ApplicationUser");
 
-                    b.Navigation("ReviewGroup");
-
                     b.Navigation("ReviewItem");
+                });
+
+            modelBuilder.Entity("ReviewsWebApp.Models.ReviewItem", b =>
+                {
+                    b.HasOne("ReviewsWebApp.Models.ReviewGroup", "ReviewGroup")
+                        .WithMany("ReviewItems")
+                        .HasForeignKey("ReviewGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReviewGroup");
                 });
 
             modelBuilder.Entity("ReviewsWebApp.Data.ApplicationUser", b =>
@@ -491,7 +503,7 @@ namespace ReviewsWebApp.Data.Migrations
 
             modelBuilder.Entity("ReviewsWebApp.Models.ReviewGroup", b =>
                 {
-                    b.Navigation("Reviews");
+                    b.Navigation("ReviewItems");
                 });
 
             modelBuilder.Entity("ReviewsWebApp.Models.ReviewItem", b =>

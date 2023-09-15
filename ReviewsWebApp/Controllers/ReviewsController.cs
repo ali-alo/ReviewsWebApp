@@ -66,6 +66,23 @@ namespace ReviewsWebApp.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var reviewEditDto = await _reviewRepository.GetReviewEditDtoById(id);
+            if (reviewEditDto == null)
+                return BadRequest();
+
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == reviewEditDto.CreatorId
+                || User.IsInRole(ApplicationRoleTypes.Admin))
+            {
+                var (tags, _) = await GetTagsAndGroups();
+                return View(new ReviewEditViewModel { Tags = tags, Review = reviewEditDto });
+            }
+
+            return Unauthorized();
+        }
+
         private async Task<(List<Tag>, List<ReviewGroup>)> GetTagsAndGroups()
         {
             var tags = await _tagService.GetAllTags();

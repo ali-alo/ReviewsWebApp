@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AddOneImageHere" xml:space="preserve">
-    <value>You can drag &amp; drop one photo here or click to browse</value>
+    <value>Drag &amp; drop one photo here or click to browse</value>
   </data>
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>

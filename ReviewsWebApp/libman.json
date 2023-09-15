@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "provider": "cdnjs",
+      "library": "popper.js@2.10.2",
+      "destination": "wwwroot/lib/popper.js/",
+      "files": [
+        "umd/enums.js",
+        "umd/enums.js.map",
+        "umd/enums.min.js",
+        "umd/enums.min.js.map",
+        "umd/popper-base.js",
+        "umd/popper-base.js.map",
+        "umd/popper-base.min.js",
+        "umd/popper-base.min.js.map",
+        "umd/popper-lite.js",
+        "umd/popper-lite.js.map",
+        "umd/popper-lite.min.js",
+        "umd/popper-lite.min.js.map",
+        "umd/popper.js",
+        "umd/popper.js.map",
+        "umd/popper.min.js",
+        "umd/popper.min.js.map"
+      ]
+    }
+  ]
+}

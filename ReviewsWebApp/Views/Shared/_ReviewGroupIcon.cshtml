@@ -1,0 +1,18 @@
+﻿@model string
+
+@if (Model == "Movies")
+{
+    <i class="bi bi-camera-video text-success d-block my-1"></i>
+}
+else if (Model == "Books")
+{
+    <i class="bi bi-book text-primary d-block my-1"></i>
+}
+else if (Model == "Games")
+{
+    <i class="bi bi-joystick text-danger d-block my-1"></i>
+}
+else
+{
+    <small class="d-block my-1 text-dark">@Model</small>
+}

@@ -1,11 +1,12 @@
-﻿using ReviewsWebApp.Models;
+﻿using ReviewsWebApp.DTOs;
+using ReviewsWebApp.Models;
 
 namespace ReviewsWebApp.Repositories.Interfaces
 {
     public interface IReviewRepository
     {
-        Task<List<Review>> GetAllReviews();
-        Task<Review?> GetReviewById(int id);
+        Task<List<ReviewDto>> GetAllReviews();
+        Task<ReviewEditDto?> GetReviewEditDtoById(int id);
         Task CreateReview(Review review);
         Task UpdateReview(Review review);
         Task DeleteReview(int id);

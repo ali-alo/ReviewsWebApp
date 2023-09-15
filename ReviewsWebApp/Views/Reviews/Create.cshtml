@@ -35,23 +35,14 @@
                 <span asp-validation-for="Review.Files" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="Review.Grade" class="form-label"></label>
-            <input asp-for="Review.Grade" class="form-control">
-            <span asp-validation-for="Review.Grade" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <select asp-for="Review.ReviewGroupId">
-                <option>Select group</option>
-                @foreach (var group in Model.Groups)
+        <div class="ratings-wrapper">
+            <div class="ratings">
+                @for (int i = 10; i >= 1; i--)
                 {
-                    <option value="@group.Id">@group.NameEn / @group.NameRu</option>
+                    <input type="radio" asp-for="Review.Grade" value="@i" id="@i"/><label for="@i" @(Model.Review.Grade == i ? "data-clicked=true" : "")>&#9733</label>
                 }
-            </select>
-            <span asp-validation-for="Review.ReviewGroupId" class="text-danger"></span>
+            </div>
         </div>
-
 
         <output class="w-100 d-flex justify-content-start flex-wrap position-relative mt-3"></output>
 
@@ -103,4 +94,15 @@
         });
         imgInput.files = updatedFiles.files;
     }
+
+
+    const stars = document.querySelectorAll(".ratings > label");
+    console.log(stars);
+    stars.forEach(s => {
+        s.addEventListener("click", function() {
+            stars.forEach(s => s.removeAttribute("data-clicked"));
+            this.setAttribute("data-clicked", "true");
+        })
+    })
+    
 </script>

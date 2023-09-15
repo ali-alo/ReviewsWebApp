@@ -13,8 +13,6 @@ namespace ReviewsWebApp.Models
         public List<Image> Images { get; set; } = new List<Image>();
         [Range(0, 10)]
         public decimal Grade { get; set; }
-        public ReviewGroup ReviewGroup { get; set; }
-        public int ReviewGroupId { get; set; }
         // null because if user deletes their account, the review will still be in the db
         public ApplicationUser? ApplicationUser { get; set; }
         public string? CreatorId { get; set; }

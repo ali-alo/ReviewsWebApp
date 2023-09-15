@@ -1,32 +1,59 @@
 ﻿@inject IViewLocalizer _localizer
-@model ReviewItemCreateDto
+@model ReviewItemCreateViewModel
 
 <h2 class="text-center">Review Item Create Page</h2>
 
 <form asp-antiforgery="true" asp-action="Create" asp-controller="ReviewItem" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
 
-    <div class="form-group">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+    <div class="row mt-4">
+        <div class="form-group col-6">
+            <label asp-for="Review.NameEn" class="form-label"></label>
+            <input asp-for="Review.NameEn" class="form-control" />
+            <span asp-validation-for="Review.NameEn" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <div class="mt-3">
-            <div class="img-input-div w-100 d-flex justify-content-center align-items-center text-center position-relative">
-                <p>@_localizer["AddOneImageHere"]</p>
-                <input asp-for="ImageFile" class="form-control file h-100 w-100 position-absolute cursor-pointer" id="img-input" accept="image/jpeg, image/png, image/jpg, image/gif, image/bmp" />
-            </div>
-            <span asp-validation-for="ImageFile" class="text-danger"></span>
+        <div class="form-group col-6">
+            <label asp-for="Review.NameRu" class="form-label"></label>
+            <input asp-for="Review.NameRu" class="form-control" />
+            <span asp-validation-for="Review.NameRu" class="text-danger"></span>
         </div>
     </div>
 
+    <div class="row mt-4">
+        <div class="form-group col-6">
+            <label asp-for="Review.DescriptionEn" class="form-label"></label>
+            <textarea asp-for="Review.DescriptionEn" class="form-control" rows="12"></textarea>
+            <span asp-validation-for="Review.DescriptionEn" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-6">
+            <label asp-for="Review.DescriptionRu" class="form-label"></label>
+            <textarea asp-for="Review.DescriptionRu" class="form-control" rows="12"></textarea>
+            <span asp-validation-for="Review.DescriptionRu" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <select asp-for="Review.ReviewGroupId" class="form-select">
+            <option>Select group</option>
+            @foreach (var group in Model.Groups)
+            {
+                <option value="@group.Id">@group.NameEn / @group.NameRu</option>
+            }
+        </select>
+        <span asp-validation-for="Review.ReviewGroupId" class="text-danger"></span>
+    </div>
+
+    <div class="mt-4">
+        <div class="img-input-div w-100 d-flex justify-content-center align-items-center text-center position-relative">
+            <p>@_localizer["AddOneImageHere"]</p>
+            <input asp-for="Review.ImageFile" class="form-control file h-100 w-100 position-absolute cursor-pointer" id="img-input" accept="image/jpeg, image/png, image/jpg, image/gif, image/bmp" />
+        </div>
+        <span asp-validation-for="Review.ImageFile" class="text-danger"></span>
+    </div>
+
     <output class="w-100 d-flex justify-content-start flex-wrap position-relative mt-3"></output>
+
     <button type="submit" class="btn btn-primary mt-3">@_localizer["Submit"]</button>
 </form>
 

@@ -1,10 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @using ReviewsWebApp.Areas.Identity;
 @using ReviewsWebApp.Data;
+@using System.Globalization
 @inject IViewLocalizer _localizer
 @inject UserManager<ApplicationUser> UserManager
 @model ReviewItemsListViewModel
 
+@{
+    var currentCulture = CultureInfo.CurrentCulture;
+    var cultureName = currentCulture.Name;
+}
 
 @if (User.IsInRole(ApplicationRoleTypes.Admin))
 {
@@ -13,17 +18,25 @@
 <div class="row">
     @foreach (var review in Model.Items)
     {
-        <div class="col-3 mt-4">
+        <div class="col-3 mt-4 d-flex">
             <div class="card">
                 <img src="@(Model.ContainerLink +  review.ImageGuid)" class="img-clickable cursor-pointer card-img-top h-200p" alt="Item image" />
-                <div class="card-body">
-                    <h5 class="card-title">@review.Name</h5>
-                    <p class="card-text">@review.Description</p>
-                    @if (User.IsInRole(ApplicationRoleTypes.Admin))
-                    {
-                        <a asp-action="Edit" asp-controller="ReviewItem" asp-route-id="@review.Id" class="btn btn-primary">@_localizer["Edit"]</a>
-                    }
-                    <a asp-action="Create" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-secondary">Leave review</a>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@review.Id" class="text-decoration-none"> 
+                            @(cultureName == "en" ? review.NameEn : review.NameRu)
+                            <partial name="_ReviewGroupIcon" model="review.ReviewGroup.NameEn" /></a>
+                    </h5>
+                    <p class="card-text">
+                        @(cultureName == "en" ? review.DescriptionEn : review.DescriptionRu)
+                    </p>
+                    <div class="align-self-end mt-auto btn-group-sm">
+                        @if (User.IsInRole(ApplicationRoleTypes.Admin))
+                        {
+                            <a asp-action="Edit" asp-controller="ReviewItem" asp-route-id="@review.Id" class="btn btn-sm btn-secondary">@_localizer["Edit"]</a>
+                        }
+                        <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@review.Id" class="btn btn-sm btn-primary">@_localizer["ReadMore"]</a>
+                    </div>
                 </div>
             </div>
         </div>

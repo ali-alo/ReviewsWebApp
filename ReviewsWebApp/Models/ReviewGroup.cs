@@ -11,6 +11,6 @@ namespace ReviewsWebApp.Models
         [MaxLength(50)]
         [Required]
         public string NameRu { get; set; }
-        public List<Review> Reviews { get; set; } = new List<Review>();
+        public List<ReviewItem> ReviewItems { get; set; } = new List<ReviewItem>();
     }
 }

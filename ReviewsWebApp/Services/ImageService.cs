@@ -7,7 +7,6 @@ using ReviewsWebApp.Services.Interfaces;
 
 namespace ReviewsWebApp.Services
 {
-    // TODO: Add Delete from blob storage functionality 
     public class ImageService : IImageService
     {
         private readonly AzureOptions _azureOptions;
@@ -15,19 +14,6 @@ namespace ReviewsWebApp.Services
         public ImageService(IOptions<AzureOptions> azureOptions)
         {
             _azureOptions = azureOptions.Value;
-        }
-
-        public string GetContainerLink() => _azureOptions.ContainerLink;
-
-        public async Task<string> UploadImageToAzure(IFormFile file)
-        {
-            string fileExtension = Path.GetExtension(file.FileName).ToLower();
-            if (!IsImageExtension(fileExtension))
-                return string.Empty;
-            using var fileUploadStream = await ConvertFormFileToMemoryStream(file);
-            string uniqueName = GenerateUniqueBlobName(fileExtension);
-            await UploadFileToAzureBlobStorage(uniqueName, fileUploadStream);
-            return uniqueName;
         }
 
         private bool IsImageExtension(string fileExtension)
@@ -44,18 +30,38 @@ namespace ReviewsWebApp.Services
             return memoryStream;
         }
 
-        private string GenerateUniqueBlobName(string fileExtension) => 
+        private string GenerateUniqueBlobName(string fileExtension) =>
             Guid.NewGuid().ToString() + fileExtension;
 
-        private async Task UploadFileToAzureBlobStorage(string blobName, MemoryStream stream)
+        private BlobClient GetBlobClient(string blobName)
         {
             var blobContainerClient = new BlobContainerClient(_azureOptions.ConnectionString,
                                                               _azureOptions.Container);
-            var blobClient = blobContainerClient.GetBlobClient(blobName);
+            return blobContainerClient.GetBlobClient(blobName);
+        }
+
+        private async Task UploadFileToAzureBlobStorage(string blobName, MemoryStream stream)
+        {
+            var blobClient = GetBlobClient(blobName);
             await blobClient.UploadAsync(stream, new BlobUploadOptions
             {
                 HttpHeaders = new BlobHttpHeaders { ContentType = "image/bitmap" }
             });
+        }
+
+        public string GetContainerLink() => _azureOptions.ContainerLink;
+
+        public async Task<string> UploadImageToAzure(IFormFile file)
+        {
+            if (file == null)
+                return string.Empty;
+            string fileExtension = Path.GetExtension(file.FileName).ToLower();
+            if (!IsImageExtension(fileExtension))
+                return string.Empty;
+            using var fileUploadStream = await ConvertFormFileToMemoryStream(file);
+            string uniqueName = GenerateUniqueBlobName(fileExtension);
+            await UploadFileToAzureBlobStorage(uniqueName, fileUploadStream);
+            return uniqueName;
         }
 
         public async Task<List<Image>> UploadImagesToAzure(List<IFormFile> files)
@@ -68,6 +74,19 @@ namespace ReviewsWebApp.Services
                     images.Add(new Image { ImageGuid = imageGuid});
             }
             return images;
+        }
+
+        public async Task DeleteImageFromAzure(string blobName)
+        {
+            var blobClient = GetBlobClient(blobName);
+            if (await blobClient.ExistsAsync())
+                await blobClient.DeleteAsync();
+        }
+
+        public async Task DeleteImagesFromAzure(IEnumerable<string> blobNames)
+        {
+            foreach (var blobName in blobNames)
+                await DeleteImageFromAzure(blobName);
         }
     }
 }

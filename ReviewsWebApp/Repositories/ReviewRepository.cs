@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
+using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
 using ReviewsWebApp.Repositories.Interfaces;
 
@@ -29,15 +30,46 @@ namespace ReviewsWebApp.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<List<Review>> GetAllReviews()
+        public async Task<List<ReviewDto>> GetAllReviews()
         {
-            return await _context.Reviews.Include(r => r.ApplicationUser).Include(r => r.ReviewGroup)
-                .Include(r => r.ReviewItem).Include(r => r.Images).AsNoTracking().ToListAsync();
+            return await _context.Reviews
+                .Include(r => r.ApplicationUser)
+                .Include(r => r.ReviewItem)
+                .Include(r => r.Images)
+                .Select(r =>
+                    new ReviewDto
+                    {
+                        Id = r.Id,
+                        Title = r.Title,
+                        MarkdownText = r.MarkdownText,
+                        Images = r.Images,
+                        Grade = r.Grade,
+                        CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
+                        CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
+                        CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
+                        ReviewItemTitle = r.Title,
+                        ReviewItemImageGuid = r.ReviewItem.ImageGuid,
+                        ReviewItemId = r.ReviewItem.Id
+                    }).ToListAsync();
         }
 
-        public Task<Review?> GetReviewById(int id)
+        public async Task<ReviewEditDto?> GetReviewEditDtoById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Reviews
+                .Include(r => r.ReviewItem)
+                .Select(r => 
+                    new ReviewEditDto
+                    {
+                        Id= r.Id,
+                        Title = r.Title,
+                        MarkdownText = r.MarkdownText,
+                        Grade= r.Grade,
+                        ReviewItemTitleEn = r.ReviewItem.NameEn,
+                        ReviewItemTitleRu = r.ReviewItem.NameRu,
+                        CreatorId = r.CreatorId
+                        // TODO: add comments and likes amount
+                    })
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public Task UpdateReview(Review review)

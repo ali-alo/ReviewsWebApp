@@ -117,11 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Description" xml:space="preserve">
-    <value>Описание</value>
+  <data name="DescriptionEn" xml:space="preserve">
+    <value>Описание на английском</value>
   </data>
   <data name="DescriptionRequired" xml:space="preserve">
     <value>Требуется описание произведения</value>
+  </data>
+  <data name="DescriptionRu" xml:space="preserve">
+    <value>Описание на русском</value>
   </data>
   <data name="Image" xml:space="preserve">
     <value>Фото</value>
@@ -129,11 +132,14 @@
   <data name="ImageRequired" xml:space="preserve">
     <value>Загрузите фотографию для пользователей</value>
   </data>
-  <data name="Name" xml:space="preserve">
-    <value>Название</value>
+  <data name="NameEn" xml:space="preserve">
+    <value>Название на английском</value>
   </data>
   <data name="NameRequired" xml:space="preserve">
     <value>Требуется название</value>
+  </data>
+  <data name="NameRu" xml:space="preserve">
+    <value>Название на русском</value>
   </data>
   <data name="NameTooLong" xml:space="preserve">
     <value>Название не должно превышать 50 символов</value>

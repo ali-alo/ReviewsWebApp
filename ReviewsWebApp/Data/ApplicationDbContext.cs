@@ -23,9 +23,9 @@ namespace ReviewsWebApp.Data
             builder.Entity<ReviewGroup>().HasIndex(rg => rg.NameRu).IsUnique();
             builder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
 
-            builder.Entity<Review>()
+            builder.Entity<ReviewItem>()
                 .HasOne(r => r.ReviewGroup)
-                .WithMany(rg => rg.Reviews)
+                .WithMany(rg => rg.ReviewItems)
                 .HasForeignKey(r => r.ReviewGroupId)
                 .OnDelete(DeleteBehavior.Restrict);
 

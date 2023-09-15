@@ -7,5 +7,7 @@ namespace ReviewsWebApp.Services.Interfaces
         string GetContainerLink();
         Task<string> UploadImageToAzure(IFormFile file);
         Task<List<Image>> UploadImagesToAzure(List<IFormFile> files);
+        Task DeleteImageFromAzure(string blobName);
+        Task DeleteImagesFromAzure(IEnumerable<string> blobNames);
     }
 }

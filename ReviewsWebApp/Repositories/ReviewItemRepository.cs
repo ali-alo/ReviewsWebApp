@@ -31,12 +31,17 @@ namespace ReviewsWebApp.Repositories
 
         public async Task<List<ReviewItem>> GetAllReviewItems()
         {
-            return await _context.ReviewsItems.AsNoTracking().ToListAsync();
+            return await _context.ReviewsItems.Include(r => r.ReviewGroup).AsNoTracking().ToListAsync();
         }
 
         public async Task<ReviewItem?> GetReviewItemById(int id)
         {
-            return await _context.ReviewsItems.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.ReviewsItems.Include(r => r.ReviewGroup).FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<ReviewItem?> GetReviewItemWithReviews(int id)
+        {
+            return await _context.ReviewsItems.Include(r => r.ReviewGroup).Include(r => r.Reviews).FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public async Task<bool> ReviewItemExists(int id)
@@ -49,8 +54,10 @@ namespace ReviewsWebApp.Repositories
             var review = await GetReviewItemById(item.Id);
             if (review == null)
                 return;
-            review.Name = item.Name;
-            review.Description = item.Description;
+            review.NameEn = item.NameEn;
+            review.NameRu = item.NameRu;
+            review.DescriptionEn = item.DescriptionEn;
+            review.DescriptionRu = item.DescriptionRu;
             review.ImageGuid = item.ImageGuid;
             await _context.SaveChangesAsync();
         }

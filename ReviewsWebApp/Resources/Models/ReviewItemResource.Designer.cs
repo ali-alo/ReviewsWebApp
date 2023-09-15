@@ -61,11 +61,11 @@ namespace ReviewsWebApp.Resources.Models {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Description.
+        ///   Looks up a localized string similar to Description in English.
         /// </summary>
-        public static string Description {
+        public static string DescriptionEn {
             get {
-                return ResourceManager.GetString("Description", resourceCulture);
+                return ResourceManager.GetString("DescriptionEn", resourceCulture);
             }
         }
         
@@ -75,6 +75,15 @@ namespace ReviewsWebApp.Resources.Models {
         public static string DescriptionRequired {
             get {
                 return ResourceManager.GetString("DescriptionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description in Russian.
+        /// </summary>
+        public static string DescriptionRu {
+            get {
+                return ResourceManager.GetString("DescriptionRu", resourceCulture);
             }
         }
         
@@ -97,11 +106,11 @@ namespace ReviewsWebApp.Resources.Models {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name.
+        ///   Looks up a localized string similar to Name in English.
         /// </summary>
-        public static string Name {
+        public static string NameEn {
             get {
-                return ResourceManager.GetString("Name", resourceCulture);
+                return ResourceManager.GetString("NameEn", resourceCulture);
             }
         }
         
@@ -111,6 +120,15 @@ namespace ReviewsWebApp.Resources.Models {
         public static string NameRequired {
             get {
                 return ResourceManager.GetString("NameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name in Russian.
+        /// </summary>
+        public static string NameRu {
+            get {
+                return ResourceManager.GetString("NameRu", resourceCulture);
             }
         }
         

@@ -1,0 +1,63 @@
+﻿@using System.Globalization;
+@using ReviewsWebApp.Areas.Identity;
+@inject IViewLocalizer _localizer
+@model ReviewItemDetailsViewModel
+
+@{
+    var currentCulture = CultureInfo.CurrentCulture;
+    var cultureName = currentCulture.Name;
+}
+
+<div class="col-2">
+    
+</div>
+
+<div class="col-md-8 col-lg-6 mt-2">
+    <div class="row">
+        <img src="@Model.ContainerLink@Model.ReviewItem.ImageGuid" class="img-clickable col-6" />
+        <h2 class="col-6">@(
+                cultureName == "en" ? Model.ReviewItem.NameEn : Model.ReviewItem.NameRu
+                ) 
+            <partial name="_ReviewGroupIcon" model="Model.ReviewItem.ReviewGroup.NameEn" />
+        </h2>
+    </div>
+    <div class="mt-4">
+        @if (Model.ReviewItem.Reviews.Any())
+        {
+            var ratingAverage = Model.ReviewItem.Reviews.Average(r => r.Grade);
+            <p class="ratings ratings-sm">
+                <span class="mx-3"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Average rating is based on the reviews users of our website leave"></i></span>
+                <span class="mx-3">@Math.Round(ratingAverage, 2)</span>
+                @for (int i = 10; i >= 1; i--)
+                {
+                    <span for="@i" @(ratingAverage >= i ? "class=text-orange" : "")>&#9733</span>
+                }
+            </p>
+        }
+        else
+        {
+            <p>No ratings yet</p>
+        }
+    </div>
+    <p class="mt-4">
+        @(cultureName == "en" ? @Html.Raw(Model.ReviewItem.DescriptionEn.Replace("\n", "<br>")) : @Html.Raw(Model.ReviewItem.DescriptionRu.Replace("\n", "<br>")))
+    </p>
+
+    <div>
+        @if (User.IsInRole(ApplicationRoleTypes.Admin))
+        {
+            <a asp-action="Edit" asp-controller="ReviewItem" asp-route-id="@Model.ReviewItem.Id" class="btn btn-sm btn-secondary">@_localizer["Edit"]</a>
+        }
+        <a asp-action="Create" asp-controller="Reviews" asp-route-id="@Model.ReviewItem.Id" class="btn btn-sm btn-primary">@_localizer["Review"]</a>
+    </div>
+
+</div>
+<hr />
+
+    
+
+<h4>Reviews @Model.ReviewItem.Reviews.Count</h4>
+@foreach (var review in Model.ReviewItem.Reviews)
+{
+    
+}

@@ -5,11 +5,6 @@ namespace ReviewsWebApp.Controllers
 {
     public class LanguageController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         public IActionResult SwitchLanguage(string culture)
         {
             Response.Cookies.Append(

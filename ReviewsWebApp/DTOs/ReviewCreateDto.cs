@@ -13,7 +13,6 @@ namespace ReviewsWebApp.DTOs
         [Range(0, 10)]
         public decimal Grade { get; set; }
         public List<Tag> Tags { get; set; } = new List<Tag>();
-        public int ReviewGroupId { get; set; }
         public int ReviewItemId { get; set; }
     }
 }
