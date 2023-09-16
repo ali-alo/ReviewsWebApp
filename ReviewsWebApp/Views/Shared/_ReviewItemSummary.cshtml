@@ -1,0 +1,40 @@
+﻿@using System.Globalization;
+
+@{
+    var currentCulture = CultureInfo.CurrentCulture;
+    var cultureName = currentCulture.Name;
+}
+
+<h3>About the item</h3>
+<div class="row mt-3">
+    <img src="@Model.ContainerLink@Model.ReviewItem.ImageGuid" class="img-clickable col-3" />
+    <div class="col-3 d-flex flex-column justify-content-between">
+        <h3>
+            @(cultureName == "en" ? Model.ReviewItem.NameEn : Model.ReviewItem.NameRu)
+            <partial name="_ReviewGroupIcon" model="Model.ReviewItem.ReviewGroup.NameEn" />
+        </h3>
+        <div>
+            <h5>Average rating @Math.Round(Model.ReviewsAverage, 2)</h5>
+            <div class="ratings ratings-sm">
+                @for (int i = 10; i >= 1; i--)
+                {
+                    <span for="@i" @(Model.ReviewsAverage >= i ? "class=text-orange" : "")>&#9733</span>
+                }
+            </div>
+        </div>
+        @if (Model.ReviewsCount > 0)
+        {
+            <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.Review.ReviewItemId" asp-fragment="reviews">Go to @Model.ReviewsCount reviews</a>
+        }
+        else
+        {
+            <p>No reviews yet</p>
+        }
+    </div>
+    <div class="col-6 d-flex flex-column">
+        <p class="limit-text">
+            @(cultureName == "en" ? Model.ReviewItem.DescriptionEn : Model.ReviewItem.DescriptionRu)
+        </p>
+        <a class="align-self-end" asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.Review.ReviewItemId">Read more</a>
+    </div>
+</div>

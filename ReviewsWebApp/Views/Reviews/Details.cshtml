@@ -1,6 +1,8 @@
 ﻿@model ReviewDetailsViewModel
 
 <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel" data-bs-interval="false">
+    @if (Model.Review.Images.Any())
+    {
     <div class="carousel-inner">
         <div class="carousel-item active">
             <img src="@Model.ContainerLink@Model.Review.Images[0].ImageGuid" class="d-block w-100 img-clickable carousel-image-list " alt="Review Image">
@@ -20,4 +22,5 @@
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
     </button>
+    }
 </div>

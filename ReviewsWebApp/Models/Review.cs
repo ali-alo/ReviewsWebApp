@@ -18,6 +18,7 @@ namespace ReviewsWebApp.Models
         public string? CreatorId { get; set; }
         public ReviewItem ReviewItem { get; set; }
         public int ReviewItemId { get; set;}
+        public DateTime CreatedAt { get; set; }
 
     }
 }

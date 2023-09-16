@@ -14,18 +14,15 @@ namespace ReviewsWebApp.Controllers
     public class ReviewsController : Controller
     {
         private readonly IImageService _imageService;
-        private readonly IReviewGroupRepository _reviewGroupRepository;
         private readonly IReviewRepository _reviewRepository;
         private readonly ITagService _tagService;
         private readonly IReviewItemRepository _reviewItemRepository;
         private readonly IMapper _mapper;
 
-        public ReviewsController(IImageService imageService, IReviewGroupRepository reviewGroupRepository,
-            IReviewRepository reviewRepository, ITagService tagService, IReviewItemRepository reviewItemRepository,
-            IMapper mapper)
+        public ReviewsController(IImageService imageService,IReviewRepository reviewRepository, 
+            ITagService tagService, IReviewItemRepository reviewItemRepository, IMapper mapper)
         {
             _imageService = imageService;
-            _reviewGroupRepository = reviewGroupRepository;
             _reviewRepository = reviewRepository;
             _tagService = tagService;
             _reviewItemRepository = reviewItemRepository;
@@ -42,25 +39,62 @@ namespace ReviewsWebApp.Controllers
         [Authorize]
         public async Task<IActionResult> Create(int id)
         {
-            var (tags, groups) = await GetTagsAndGroups();
-            if (!await _reviewItemRepository.ReviewItemExists(id)) 
+            var reviewItem = await _reviewItemRepository.GetReviewItemById(id);
+            if (reviewItem == null)
                 return RedirectToAction("List", "ReviewItem");
-            return View(new ReviewCreateViewModel { Tags = tags, Groups = groups, Review = new ReviewCreateDto { ReviewItemId = id } });
+            int existingReviewId = await _reviewRepository.UserAlreadyLeftReview(id, User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (existingReviewId != 0) // user has left a review for this item already
+                return RedirectToAction("Details", "Reviews", routeValues: new { id = existingReviewId });
+            ReviewFormViewModel viewModel = await GetFormViewModel(reviewItem);
+            return View(viewModel);
+        }
+
+        private async Task<ReviewFormViewModel> GetFormViewModel(ReviewItem reviewItem)
+        {
+            var tags = await GetTags();
+            var containerLink = _imageService.GetContainerLink();
+            var reviewsCount = await _reviewRepository.GetReviewsCount(reviewItem.Id);
+            var reviewsAverage = await _reviewRepository.GetReviewsAverage(reviewItem.Id);
+            var reviewCreateDto = new ReviewDto { ReviewItemId = reviewItem.Id };
+            return new ReviewFormViewModel
+            {
+                Tags = tags,
+                Review = reviewCreateDto,
+                ContainerLink = containerLink,
+                ReviewItem = reviewItem,
+                ReviewsCount = reviewsCount,
+                ReviewsAverage = reviewsAverage
+            };
+        }
+
+        private async Task<ReviewFormViewModel?> GetFormViewModel(int reviewItemId)
+        {
+            var reviewItem = await _reviewItemRepository.GetReviewItemById(reviewItemId);
+            if (reviewItem == null)
+                return null;
+            return await GetFormViewModel(reviewItem);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create(ReviewCreateViewModel reviewCreateViewModel)
+        public async Task<IActionResult> Create(ReviewFormViewModel reviewCreateViewModel)
         {
             if (!await _reviewItemRepository.ReviewItemExists(reviewCreateViewModel.Review.ReviewItemId))
                 return RedirectToAction("List", "ReviewItem");
             if (!ModelState.IsValid)
-                return await ResubmitForm(reviewCreateViewModel);
+            {
+                var viewModel = await GetFormViewModel(reviewCreateViewModel.Review.ReviewItemId);
+                if (viewModel == null)
+                    return RedirectToAction("List", "ReviewItem");
+                viewModel.Review = reviewCreateViewModel.Review;
+                return View(viewModel);
+            }
 
             Review review = _mapper.Map<Review>(reviewCreateViewModel.Review);
             review.Images = await _imageService.UploadImagesToAzure(reviewCreateViewModel.Review.Files);
             review.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            review.CreatedAt = DateTime.UtcNow;
             await _reviewRepository.CreateReview(review);
 
             return RedirectToAction("Index");
@@ -69,34 +103,33 @@ namespace ReviewsWebApp.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
-            var reviewEditDto = await _reviewRepository.GetReviewEditDtoById(id);
+            var reviewEditDto = await _reviewRepository.GetReviewDtoById(id);
             if (reviewEditDto == null)
-                return BadRequest();
+                return NotFound();
 
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) == reviewEditDto.CreatorId
                 || User.IsInRole(ApplicationRoleTypes.Admin))
             {
-                var (tags, _) = await GetTagsAndGroups();
-                return View(new ReviewEditViewModel { Tags = tags, Review = reviewEditDto });
+                var model = await GetFormViewModel(reviewEditDto.ReviewItemId);
+                if (model == null)
+                    return BadRequest();
+                model.Review = reviewEditDto;
+                return View(model);
             }
 
             return Unauthorized();
         }
 
-        private async Task<(List<Tag>, List<ReviewGroup>)> GetTagsAndGroups()
+        public async Task<ActionResult> Details(int id)
         {
-            var tags = await _tagService.GetAllTags();
-            var groups = await _reviewGroupRepository.GetAllGroups();
-            return (tags, groups);
+            var review = await _reviewRepository.GetReviewById(id);
+            if (review == null)
+                return NotFound();
+            var containerLink = _imageService.GetContainerLink();
+            return View(new ReviewDetailsViewModel { ContainerLink = containerLink, Review = review});
         }
 
-        private async Task<ActionResult> ResubmitForm(ReviewCreateViewModel model)
-        {
-            var (tags, groups) = await GetTagsAndGroups();
-            model.Tags = tags;
-            model.Groups = groups;
-            return View("Create", model);
-        }
+        private async Task<List<Tag>> GetTags() => await _tagService.GetAllTags();
 
     }
 }

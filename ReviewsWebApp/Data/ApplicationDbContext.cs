@@ -23,6 +23,11 @@ namespace ReviewsWebApp.Data
             builder.Entity<ReviewGroup>().HasIndex(rg => rg.NameRu).IsUnique();
             builder.Entity<Tag>().HasIndex(t => t.Name).IsUnique();
 
+            // one user can leave only one review on a ReviewItem
+            builder.Entity<Review>()
+                .HasIndex(r => new { r.CreatorId, r.ReviewItemId })
+                .IsUnique();
+
             builder.Entity<ReviewItem>()
                 .HasOne(r => r.ReviewGroup)
                 .WithMany(rg => rg.ReviewItems)

@@ -1,12 +1,15 @@
 ﻿@using System.Security.Claims;
 @using ReviewsWebApp.Areas.Identity;
+@using System.Globalization;
 @inject IViewLocalizer _localizer;
 @model ReviewsIndexViewModel
 
 @{
     ViewData["Title"] = _localizer["Title"];
+    var currentCulture = CultureInfo.CurrentCulture;
+    var cultureName = currentCulture.Name;
 
-    bool CanEditReview(ReviewDto review) => 
+    bool CanEditReview(ReviewDetailsDto review) => 
         review.CreatorId is not null && review.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier) 
         || User.IsInRole(ApplicationRoleTypes.Admin);
 }
@@ -16,19 +19,44 @@
 <div class="row">
     @foreach(var review in Model.Reviews)
     {
-        <div class="col-3 mt-4">
+        <div class="col-3 mt-4 d-flex">
             <div class="card">
                 <img src="@(Model.ContainerLink +  (review.Images.Any() ? review.Images[0].ImageGuid : review.ReviewItemImageGuid))" class="img-clickable card-img-top h-200p" alt="Review image" />
-                <div class="card-body">
-                    <h5 class="card-header">@review.ReviewItemTitle</h5>
+                <div class="card-body d-flex flex-column">
+                    <h5>
+                        <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@review.ReviewItemId" class="text-decoration-none">
+                            @(cultureName == "en" ? review.ReviewItemNameEn : review.ReviewItemNameRu)
+                            <partial name="_ReviewGroupIcon" model="review.ReviewItemGroupNameEn" />
+                        </a>
+                    </h5>
+                    <div class="ratings ratings-sm">
+                        @for (int i = 10; i >= 1; i--)
+                        {
+                            <span for="@i" @(review.Grade >= i ? "class=text-orange" : "")>&#9733</span>
+                        }
+                    </div>
                     <h5 class="card-title mt-2">@review.Title</h5>
-                    <div class="card-text markdown mt-3">@review.MarkdownText</div>
-                    <p class="text-end">@(review.CreatorFirstName == null ? "Deleted Account" : $"{review.CreatorFirstName} {review.CreatorLastName}")</p>
-                    <a asp-action="Create" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-secondary">Rate review</a>
-                    @if (CanEditReview(review))
-                    {
-                        <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-warning">Edit</a>
-                    }
+                    <div class="card-text markdown mt-2">@review.MarkdownText</div>
+                    <div class="text-end mt-auto">
+                        <p class="mt-3 mb-0">
+                            @if(review.CreatorFirstName == null)
+                            {
+                                <span>Deleted Account</span>
+                            }
+                            else
+                            {
+                                <a asp-action="Details" asp-controller="User" asp-route-id="@review.CreatorId">@($"{review.CreatorFirstName} {review.CreatorLastName}")</a>
+                            }
+                        </p>
+                        <p><partial name="_ComputedCreatedTime" model="review.CreatedTime" /></p>
+                    </div>
+                    <div>
+                        <a asp-action="Create" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-primary">Rate review</a>
+                        @if (CanEditReview(review))
+                        {
+                            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-warning">Edit</a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

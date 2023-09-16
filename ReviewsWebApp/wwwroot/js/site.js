@@ -47,3 +47,18 @@ var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
 })
+
+
+// rating visualization
+const stars = document.querySelectorAll(".ratings > label");
+const choiceEl = document.getElementById("choice");
+stars.forEach(s => {
+    s.addEventListener("click", function () {
+        stars.forEach(s => s.removeAttribute("data-clicked"));
+        this.setAttribute("data-clicked", "true");
+        choiceEl.textContent = this.getAttribute("for");
+    })
+})
+const initialValue = document.querySelector('input[checked="checked"]');
+if (initialValue)
+    choiceEl.textContent = initialValue.value;

@@ -1,19 +1,20 @@
-﻿using ReviewsWebApp.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using ReviewsWebApp.Models;
 
 namespace ReviewsWebApp.DTOs
 {
     public class ReviewDto
     {
         public int Id { get; set; }
+        public List<IFormFile> Files { get; set; } = new List<IFormFile>();
+        [Display(Name = "Title", ResourceType = typeof(Resources.Models.ReviewResource))]
+        [MaxLength(40, ErrorMessageResourceType = typeof(Resources.Models.ReviewResource), ErrorMessageResourceName = "TitlePropertyLong")]
         public string Title { get; set; } = string.Empty;
         public string MarkdownText { get; set; } = string.Empty;
-        public List<Image> Images { get; set; } = new List<Image>();
+        [Range(0, 10)]
         public decimal Grade { get; set; }
-        public string? CreatorFirstName { get; set; }
-        public string? CreatorLastName { get; set; }
-        public string? CreatorId { get; set; }
-        public string ReviewItemTitle { get; set; }
-        public string ReviewItemImageGuid { get; set; }
+        public List<Tag> Tags { get; set; } = new List<Tag>();
         public int ReviewItemId { get; set; }
+        public string? CreatorId { get; set; } = "";
     }
 }

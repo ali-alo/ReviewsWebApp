@@ -8,7 +8,7 @@ namespace ReviewsWebApp.Profiles
     {
         public ReviewProfile()
         {
-            CreateMap<ReviewCreateDto, Review>();
+            CreateMap<ReviewDto, Review>();
         }
     }
 }
