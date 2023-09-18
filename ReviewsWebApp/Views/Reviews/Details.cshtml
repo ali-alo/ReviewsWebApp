@@ -1,11 +1,34 @@
-﻿@model ReviewDetailsViewModel
+﻿@using System.Security.Claims;
+@model ReviewDetailsViewModel
 
 <partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
 <hr />
 <h3>About the review</h3>
 
 <div class="review-frame p-3 mt-3">
-    <div class="review-title fs-3 fw-bold mb-2">@Model.ReviewDetails.Title</div>
+    <div class="review-title fs-3 fw-bold mb-2 d-flex">
+        <span>@Model.ReviewDetails.Title</span>
+        <div class="ms-auto d-flex flex-column">
+            <span>
+                <span>@Model.ReviewDetails.UsersIdWhoLiked.Count()</span>
+                @{
+                    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (Model.ReviewDetails.UsersIdWhoLiked.Contains(userId))
+                    {
+                        <a class="text-dark text-decoration-none" href="@Url.Action("DislikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })">
+                            <i class="bi bi-heart-fill text-danger"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="text-dark text-decoration-none" href="@Url.Action("LikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
+                    }
+                }
+            </span>
+        </div>
+    </div>
     <div class="ratings mb-2">
         <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="@Model.ReviewDetails.CreatorFirstName @Model.ReviewDetails.CreatorLastName put @((int)Model.ReviewDetails.Grade) stars for this item"></i></span>
         @for (int i = 10; i >= 1; i--)

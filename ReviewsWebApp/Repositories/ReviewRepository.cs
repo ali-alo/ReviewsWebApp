@@ -54,7 +54,8 @@ namespace ReviewsWebApp.Repositories
                     ReviewItemImageGuid = r.ReviewItem.ImageGuid,
                     ReviewItemId = r.ReviewItem.Id,
                     ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                    ReviewRatings = r.RatedReviews
+                    ReviewRatings = r.RatedReviews,
+                    UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
                 }).ToListAsync();
         }
 
@@ -75,7 +76,8 @@ namespace ReviewsWebApp.Repositories
                 ReviewItemImageGuid = r.ReviewItem.ImageGuid,
                 ReviewItemId = r.ReviewItem.Id,
                 ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                ReviewRatings = r.RatedReviews
+                ReviewRatings = r.RatedReviews,
+                UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
             }).FirstOrDefaultAsync(r => r.Id == id);
 
         public async Task<ReviewDto?> GetReviewDtoById(int id)

@@ -19,5 +19,6 @@ namespace ReviewsWebApp.DTOs
         public DateTime CreatedTime { get; set; }
         public int ReviewItemId { get; set; }
         public List<UserRatedReview> ReviewRatings { get; set; }
+        public List<string> UsersIdWhoLiked { get; set; } = new ();
     }
 }

@@ -47,6 +47,7 @@ services.AddScoped<IReviewRepository, ReviewRepository>();
 services.AddScoped<IReviewGroupRepository, ReviewGroupRepository>();
 services.AddScoped<ICommentRepository, CommentRepository>();
 services.AddScoped<IUserRatedReviewRepository, UserRatedReviewRepository>();
+services.AddScoped<IUserRepository, UserRepository>();
 services.AddAuthentication()
     .AddGoogle(options =>
     {
