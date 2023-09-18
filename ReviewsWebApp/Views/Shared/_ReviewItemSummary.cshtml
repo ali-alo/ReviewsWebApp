@@ -1,4 +1,5 @@
 ﻿@using System.Globalization;
+@model ReviewItemSummaryViewModel
 
 @{
     var currentCulture = CultureInfo.CurrentCulture;
@@ -24,7 +25,7 @@
         </div>
         @if (Model.ReviewsCount > 0)
         {
-            <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.Review.ReviewItemId" asp-fragment="reviews">Go to @Model.ReviewsCount reviews</a>
+            <a asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.ReviewItem.Id" asp-fragment="reviews">Go to @Model.ReviewsCount reviews</a>
         }
         else
         {
@@ -35,6 +36,6 @@
         <p class="limit-text">
             @(cultureName == "en" ? Model.ReviewItem.DescriptionEn : Model.ReviewItem.DescriptionRu)
         </p>
-        <a class="align-self-end" asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.Review.ReviewItemId">Read more</a>
+        <a class="align-self-end" asp-action="Details" asp-controller="ReviewItem" asp-route-id="@Model.ReviewItem.Id">Read more</a>
     </div>
 </div>

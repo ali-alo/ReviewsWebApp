@@ -11,5 +11,8 @@ namespace ReviewsWebApp.Data
         public string FirstName { get; set; }
         [MaxLength(50)]
         public string LastName { get; set; }
+        public List<Review> LikedReviews { get; set; }
+        public List<Comment> Comments { get; set; }
+        public List<UserRatedReview> RatedReviews { get; set; }
     }
 }

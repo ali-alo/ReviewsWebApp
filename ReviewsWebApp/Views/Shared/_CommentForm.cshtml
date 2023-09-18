@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using ReviewsWebApp.Data;
+@inject SignInManager<ApplicationUser> SignInManager
+@model CommentFormDto
+
+<div class="mt-3">
+    <h3>What do you think about this review?</h3>
+    <div class="position-relative">
+        <form asp-action="Create" asp-controller="Comment" method="post">
+
+            <input class="visually-hidden" asp-for="ReviewId" />
+
+            <div class="row mt-3 bg-light px-0 mx-0">
+                <div class="col-7 pt-3 border border-1 border-end-0 border-primary">
+                    <label asp-for="Content" class="form-label">Comment maximum 500 characters (Optional)</label>
+                    <textarea asp-for="Content" class="form-control" aria-required="true" rows="3"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+                <div class="d-flex align-items-center justify-content-center col-4 pt-3 border border-1 border-start-0 border-primary">
+                    <div>
+                        @if (Model.Grade != 0)
+                        {
+                            <label class="lead">You put @Model.Grade star(s) for this review</label>
+                        }
+                        else
+                        {
+                            <label class="lead">Rate this review from 1 to 5</label>
+                        }
+                        <div class="ratings justify-content-center align-items-center">
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                <input type="radio" asp-for="Grade" value="@i" id="@i" />
+
+                                <label for="@i" @(
+                                                Model.Grade == i ? "data-clicked=true" : ""
+                                                )>&#9733</label>
+                            }
+                        </div>
+                        <p class="lead text-center"><span id="choice">?</span>/5</p>
+                    </div>
+                </div>
+                <div class="col-1 px-0 d-flex align-items-center">
+                    <button type=submit class="btn btn-primary w-100 h-100 rounded-0">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        @if (!SignInManager.IsSignedIn(User))
+        {
+            <div class="login-overlay d-flex justify-content-center align-items-center position-absolute top-0 bottom-0 start-0 end-0">
+                <div class="lead text-center">
+                    <span class="d-block">Authenticate to add your opinion on this review.</span>
+                    <a asp-area="Identity" asp-page="/Account/Login" >Login</a>
+                    <a class="ms-2" asp-area="Identity" asp-page="/Account/Register" >Register</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
 using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
@@ -38,28 +37,46 @@ namespace ReviewsWebApp.Repositories
                 .Include(r => r.ApplicationUser)
                 .Include(r => r.ReviewItem)
                 .Include(r => r.Images)
-                .Select(r =>
-                    new ReviewDetailsDto
-                    {
-                        Id = r.Id,
-                        Title = r.Title,
-                        MarkdownText = r.MarkdownText,
-                        Images = r.Images,
-                        Grade = r.Grade,
-                        CreatedTime = r.CreatedAt,
-                        CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
-                        CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
-                        CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
-                        ReviewItemNameEn = r.ReviewItem.NameEn,
-                        ReviewItemNameRu = r.ReviewItem.NameRu,
-                        ReviewItemImageGuid = r.ReviewItem.ImageGuid,
-                        ReviewItemId = r.ReviewItem.Id,
-                        ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn
-                    }).ToListAsync();
+                .Include(r => r.RatedReviews)
+                .Select(r => new ReviewDetailsDto
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    MarkdownText = r.MarkdownText,
+                    Images = r.Images,
+                    Grade = r.Grade,
+                    CreatedTime = r.CreatedAt,
+                    CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
+                    CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
+                    CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
+                    ReviewItemNameEn = r.ReviewItem.NameEn,
+                    ReviewItemNameRu = r.ReviewItem.NameRu,
+                    ReviewItemImageGuid = r.ReviewItem.ImageGuid,
+                    ReviewItemId = r.ReviewItem.Id,
+                    ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
+                    ReviewRatings = r.RatedReviews
+                }).ToListAsync();
         }
 
-        public async Task<Review?> GetReviewById(int id) =>
-            await _context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
+        public Task<ReviewDetailsDto?> GetReviewDetailsDto(int id) =>
+            _context.Reviews.Select(r => new ReviewDetailsDto
+            {
+                Id = r.Id,
+                Title = r.Title,
+                MarkdownText = r.MarkdownText,
+                Images = r.Images,
+                Grade = r.Grade,
+                CreatedTime = r.CreatedAt,
+                CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
+                CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
+                CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
+                ReviewItemNameEn = r.ReviewItem.NameEn,
+                ReviewItemNameRu = r.ReviewItem.NameRu,
+                ReviewItemImageGuid = r.ReviewItem.ImageGuid,
+                ReviewItemId = r.ReviewItem.Id,
+                ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
+                ReviewRatings = r.RatedReviews
+            }).FirstOrDefaultAsync(r => r.Id == id);
 
         public async Task<ReviewDto?> GetReviewDtoById(int id)
         {
@@ -90,6 +107,9 @@ namespace ReviewsWebApp.Repositories
             .Where(r => r.ReviewItemId == reviewItemId)
             .CountAsync();
 
+        public async Task<bool> ReviewExists(int reviewItemId) =>
+            await _context.Reviews.AnyAsync(r => r.Id == reviewItemId);
+
         public Task UpdateReview(Review review)
         {
             throw new NotImplementedException();
@@ -103,5 +123,7 @@ namespace ReviewsWebApp.Repositories
                 .FirstOrDefaultAsync();
             return existingReviewId != 0 ? existingReviewId : 0;
         }
+
+
     }
 }

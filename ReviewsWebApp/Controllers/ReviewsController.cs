@@ -18,20 +18,23 @@ namespace ReviewsWebApp.Controllers
         private readonly ITagService _tagService;
         private readonly IReviewItemRepository _reviewItemRepository;
         private readonly IMapper _mapper;
+        private readonly ICommentRepository _commentRepository;
 
         public ReviewsController(IImageService imageService,IReviewRepository reviewRepository, 
-            ITagService tagService, IReviewItemRepository reviewItemRepository, IMapper mapper)
+            ITagService tagService, IReviewItemRepository reviewItemRepository, IMapper mapper,
+            ICommentRepository commentRepository)
         {
             _imageService = imageService;
             _reviewRepository = reviewRepository;
             _tagService = tagService;
             _reviewItemRepository = reviewItemRepository;
             _mapper = mapper;
+            _commentRepository = commentRepository;
         }
 
-        public async Task <IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
-            var containerLink = _imageService.GetContainerLink();
+            var containerLink =  _imageService.GetContainerLink();
             var reviews = await _reviewRepository.GetAllReviews();
             return View(new ReviewsIndexViewModel { Reviews = reviews, ContainerLink = containerLink });
         }
@@ -103,17 +106,17 @@ namespace ReviewsWebApp.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
-            var reviewEditDto = await _reviewRepository.GetReviewDtoById(id);
-            if (reviewEditDto == null)
+            var reviewDto = await _reviewRepository.GetReviewDtoById(id);
+            if (reviewDto == null)
                 return NotFound();
 
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == reviewEditDto.CreatorId
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == reviewDto.CreatorId
                 || User.IsInRole(ApplicationRoleTypes.Admin))
             {
-                var model = await GetFormViewModel(reviewEditDto.ReviewItemId);
+                var model = await GetFormViewModel(reviewDto.ReviewItemId);
                 if (model == null)
                     return BadRequest();
-                model.Review = reviewEditDto;
+                model.Review = reviewDto;
                 return View(model);
             }
 
@@ -122,11 +125,20 @@ namespace ReviewsWebApp.Controllers
 
         public async Task<ActionResult> Details(int id)
         {
-            var review = await _reviewRepository.GetReviewById(id);
-            if (review == null)
+            var reviewDto = await _reviewRepository.GetReviewDetailsDto(id);
+            if (reviewDto == null)
                 return NotFound();
-            var containerLink = _imageService.GetContainerLink();
-            return View(new ReviewDetailsViewModel { ContainerLink = containerLink, Review = review});
+            var formModel = await GetFormViewModel(reviewDto.ReviewItemId);
+            if (formModel == null)
+                return BadRequest();
+            var model = _mapper.Map<ReviewDetailsViewModel>(formModel);
+            model.ReviewDetails = reviewDto;
+            model.Comments = await _commentRepository.GetReviewComments(id);
+            model.CommentForm.ReviewId = id;
+            var userRatedReview = reviewDto.ReviewRatings.FirstOrDefault(r => r.ReviewId == id
+                && r.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            model.CommentForm.Grade = userRatedReview == null ? 0 : userRatedReview.Rating;
+            return View(model);
         }
 
         private async Task<List<Tag>> GetTags() => await _tagService.GetAllTags();

@@ -1,26 +1,67 @@
 ﻿@model ReviewDetailsViewModel
 
-<div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel" data-bs-interval="false">
-    @if (Model.Review.Images.Any())
-    {
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img src="@Model.ContainerLink@Model.Review.Images[0].ImageGuid" class="d-block w-100 img-clickable carousel-image-list " alt="Review Image">
-        </div>
-        @for (int i = 1; i < Model.Review.Images.Count; i++)
+<partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
+<hr />
+<h3>About the review</h3>
+
+<div class="review-frame p-3 mt-3">
+    <div class="review-title fs-3 fw-bold mb-2">@Model.ReviewDetails.Title</div>
+    <div class="ratings mb-2">
+        <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="@Model.ReviewDetails.CreatorFirstName @Model.ReviewDetails.CreatorLastName put @((int)Model.ReviewDetails.Grade) stars for this item"></i></span>
+        @for (int i = 10; i >= 1; i--)
         {
-            <div class="carousel-item">
-                <img src="@Model.ContainerLink@Model.Review.Images[i].ImageGuid" class="d-block w-100 img-clickable carousel-image-list " alt="Review Image">
+            <span for="@i" @(Model.ReviewDetails.Grade >= i ? "class=text-orange" : "")>&#9733</span>
+        }
+    </div>
+    <div class="review-content markdown mb-2">@Model.ReviewDetails.MarkdownText</div>
+    <div class="w-100 d-flex justify-content-start flex-wrap position-relative my-3 img-container">
+        @foreach (var image in Model.ReviewDetails.Images)
+        {
+            <div class="image overflow-hidden position-relative">
+                <img src="@Model.ContainerLink@image.ImageGuid" alt="Imate Image Uploaded By The User" class="w-100 h-100 img-clickable">
             </div>
         }
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
+    <div class="review-author fst-italic">- 
+        <a asp-action="Details" asp-controller="User" asp-route-id="@Model.ReviewDetails.CreatorId"> @Model.ReviewDetails.CreatorFirstName @Model.ReviewDetails.CreatorLastName</a> 
+        <partial name="_ComputedCreatedTime" model="Model.ReviewDetails.CreatedTime" />
+        </div>
+    @if (Model.ReviewDetails.ReviewRatings.Any())
+    {
+        <div class="ratings mb-2 justify-content-start align-items-center">
+            @{
+                double averageReviewRating = Math.Round(Model.ReviewDetails.ReviewRatings.Average(r => r.Rating), 2);
+                <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="@Model.ReviewDetails.ReviewRatings.Count() users rated this review. Average rating is @averageReviewRating stars"></i></span>
+                <span class="extra-info">@averageReviewRating</span>
+                for (int i = 5; i >= 1; i--)
+                {
+                    <span for="@i" @(averageReviewRating >= i ? "class=text-orange" : "")>&#9733</span>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-end">
+            <span>Review doesn't contain ratings at the moment. Be the first who rates it!</span>
+         </div>
+    }
+</div>
+<hr />
+<partial name="_CommentForm" model="Model.CommentForm"/>
+<hr />
+<div class="comments-section mt-3">
+<h3>Other comments (@Model.Comments.Count())</h3>
+@foreach (var comment in Model.Comments)
+    {
+        <div class="comment mt-3 p-3">
+            <div class="comment-content">
+                @comment.Content
+            </div>
+            <div class="comment-author mt-1">
+                <a asp-action="Details" asp-controller="User" asp-route-id="@comment.UserId">- @comment.User.FirstName @comment.User.LastName</a>
+                <partial name="_ComputedCreatedTime" model="comment.CreatedAt" />
+            </div>
+        </div>
     }
 </div>

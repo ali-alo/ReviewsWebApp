@@ -10,7 +10,7 @@
     var cultureName = currentCulture.Name;
 
     bool CanEditReview(ReviewDetailsDto review) => 
-        review.CreatorId is not null && review.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier) 
+        review.CreatorId is not null && review.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier)
         || User.IsInRole(ApplicationRoleTypes.Admin);
 }
 
@@ -30,6 +30,7 @@
                         </a>
                     </h5>
                     <div class="ratings ratings-sm">
+                        <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="@review.CreatorFirstName @review.CreatorLastName put @((int)Math.Floor(review.Grade)) stars for this item"></i></span>
                         @for (int i = 10; i >= 1; i--)
                         {
                             <span for="@i" @(review.Grade >= i ? "class=text-orange" : "")>&#9733</span>
@@ -50,11 +51,11 @@
                         </p>
                         <p><partial name="_ComputedCreatedTime" model="review.CreatedTime" /></p>
                     </div>
-                    <div>
-                        <a asp-action="Create" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-primary">Rate review</a>
+                    <div class="d-flex align-items-center">
+                        <a asp-action="Details" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-primary">Rate review</a>
                         @if (CanEditReview(review))
                         {
-                            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-warning">Edit</a>
+                            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="ms-auto"><i class="bi bi-pencil text-danger fs-3"></i></a>
                         }
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 ﻿@model ReviewFormViewModel
 
-<partial name="_ReviewItemSummary" />
+<partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
 
 <hr />
 <h3>Edit your review</h3>

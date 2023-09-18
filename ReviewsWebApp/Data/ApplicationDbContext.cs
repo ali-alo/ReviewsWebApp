@@ -10,6 +10,8 @@ namespace ReviewsWebApp.Data
         public DbSet<ReviewGroup> ReviewsGroup { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ReviewItem> ReviewsItems { get; set; }
+        public DbSet<UserRatedReview> UserRatedReviews { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -28,6 +30,10 @@ namespace ReviewsWebApp.Data
                 .HasIndex(r => new { r.CreatorId, r.ReviewItemId })
                 .IsUnique();
 
+            builder.Entity<UserRatedReview>().
+                HasIndex(r => new { r.UserId, r.ReviewId })
+                .IsUnique();
+
             builder.Entity<ReviewItem>()
                 .HasOne(r => r.ReviewGroup)
                 .WithMany(rg => rg.ReviewItems)
@@ -39,6 +45,27 @@ namespace ReviewsWebApp.Data
                 .WithMany(a => a.Reviews)
                 .HasForeignKey(r => r.CreatorId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            builder.Entity<ApplicationUser>()
+               .HasMany(u => u.LikedReviews)
+               .WithMany(r => r.UsersWhoLiked)
+               .UsingEntity<Dictionary<string, object>>(
+                   "UserLikedReviews",
+                   j => j
+                       .HasOne<Review>()
+                       .WithMany()
+                       .HasForeignKey("ReviewId")
+                       .OnDelete(DeleteBehavior.Cascade),
+                   j => j
+                       .HasOne<ApplicationUser>()
+                       .WithMany()
+                       .HasForeignKey("UserId")
+                       .OnDelete(DeleteBehavior.Cascade),
+                   j =>
+                   {
+                       j.HasKey("UserId", "ReviewId");
+                       j.ToTable("UserLikedReviews");
+                   });
 
             builder.Entity<ReviewGroup>().HasData(
                 new ReviewGroup[]

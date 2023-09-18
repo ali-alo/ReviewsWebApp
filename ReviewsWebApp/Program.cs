@@ -45,6 +45,8 @@ services.AddTransient<ITagService, TagService>();
 services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
 services.AddScoped<IReviewRepository, ReviewRepository>();
 services.AddScoped<IReviewGroupRepository, ReviewGroupRepository>();
+services.AddScoped<ICommentRepository, CommentRepository>();
+services.AddScoped<IUserRatedReviewRepository, UserRatedReviewRepository>();
 services.AddAuthentication()
     .AddGoogle(options =>
     {

@@ -19,6 +19,9 @@ namespace ReviewsWebApp.Models
         public ReviewItem ReviewItem { get; set; }
         public int ReviewItemId { get; set;}
         public DateTime CreatedAt { get; set; }
+        public List<Comment> Comments { get; set; }
+        public List<ApplicationUser> UsersWhoLiked { get; set; }
+        public List<UserRatedReview> RatedReviews { get; set; }
 
     }
 }
