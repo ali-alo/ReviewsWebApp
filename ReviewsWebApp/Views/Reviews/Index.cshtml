@@ -56,19 +56,19 @@
                         <a asp-action="Details" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-primary">Rate review</a>
                         @if (review.UsersIdWhoLiked.Contains(userId))
                         {
-                            <a class="text-dark text-decoration-none ms-auto" href="@Url.Action("DislikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })">
+                            <a class="text-dark text-decoration-none ms-auto hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })" title="Remove Like">
                                 <i class="bi bi-heart-fill text-danger fs-3"></i>
                             </a>
                         }
                         else
                         {
-                            <a class="text-dark text-decoration-none ms-auto" href="@Url.Action("LikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })">
+                            <a class="text-dark text-decoration-none ms-auto hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })" title="Like">
                                 <i class="bi bi-heart-fill fs-3 "></i>
                             </a>
                         }
                         @if (CanEditReview(review))
                         {
-                            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="ms-2"><i class="bi bi-pencil text-danger fs-3"></i></a>
+                            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@review.Id" class="ms-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger fs-3"></i></a>
                         }
                     </div>
                 </div>

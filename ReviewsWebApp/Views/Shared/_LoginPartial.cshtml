@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using ReviewsWebApp.Areas.Identity;
 @using ReviewsWebApp.Data;
+@using System.Security.Claims;
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject IViewLocalizer _localizer
@@ -8,8 +9,14 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
     {
+        if (User.IsInRole(ApplicationRoleTypes.Admin))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark"asp-controller="User" asp-action="List">@_localizer["Users"]</a>
+            </li>
+        }
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@_localizer["Hello"], @User.Claims.First(c => c.Type == ApplicationClaimTypes.FirstName).Value!</a>
+            <a class="nav-link text-dark" asp-action="Details" asp-controller="User" asp-route-id="@User.FindFirstValue(ClaimTypes.NameIdentifier)">@_localizer["Hello"], @User.Claims.First(c => c.Type == ApplicationClaimTypes.FirstName).Value!</a>
         </li>
         <li class="nav-item">
             <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

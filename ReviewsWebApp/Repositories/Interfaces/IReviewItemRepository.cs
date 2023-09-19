@@ -1,4 +1,5 @@
-﻿using ReviewsWebApp.Models;
+﻿using ReviewsWebApp.DTOs;
+using ReviewsWebApp.Models;
 
 namespace ReviewsWebApp.Repositories.Interfaces
 {
@@ -10,6 +11,6 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task UpdateReviewItem(ReviewItem item);
         Task DeleteReviewItem(int id);
         Task<bool> ReviewItemExists(int id);
-        Task<ReviewItem?> GetReviewItemWithReviews(int id);
+        Task<List<ReviewDetailsDto>> GetReviewItemReviews(int id);
     }
 }

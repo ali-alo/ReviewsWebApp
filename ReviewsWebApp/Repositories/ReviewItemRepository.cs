@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
+using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
 using ReviewsWebApp.Repositories.Interfaces;
 
@@ -39,9 +40,31 @@ namespace ReviewsWebApp.Repositories
             return await _context.ReviewsItems.Include(r => r.ReviewGroup).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<ReviewItem?> GetReviewItemWithReviews(int id)
+        public async Task<List<ReviewDetailsDto>> GetReviewItemReviews(int id)
         {
-            return await _context.ReviewsItems.Include(r => r.ReviewGroup).Include(r => r.Reviews).FirstOrDefaultAsync(r => r.Id == id);
+            return await _context.Reviews
+                .Where(r => r.ReviewItem.Id == id)
+                .Select(r => new ReviewDetailsDto
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    MarkdownText = r.MarkdownText,
+                    Images = r.Images,
+                    Grade = r.Grade,
+                    CreatedTime = r.CreatedAt,
+                    CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
+                    CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
+                    CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
+                    ReviewItemNameEn = r.ReviewItem.NameEn,
+                    ReviewItemNameRu = r.ReviewItem.NameRu,
+                    ReviewItemImageGuid = r.ReviewItem.ImageGuid,
+                    ReviewItemId = r.ReviewItem.Id,
+                    ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
+                    ReviewRatings = r.RatedReviews,
+                    UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
+                })
+                .OrderByDescending(u => u.UsersIdWhoLiked.Count())
+                .ToListAsync();
         }
 
         public async Task<bool> ReviewItemExists(int id)

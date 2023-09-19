@@ -1,0 +1,57 @@
+﻿@using System.Security.Claims;
+@model ReviewDetailsDto
+
+<div class="review p-3 mb-4">
+    <div class="review-title fs-3 fw-bold mb-2 d-flex">
+        <span>@Model.Title</span>
+        <div class="ms-auto d-flex flex-column">
+            <span>
+                <span>@Model.UsersIdWhoLiked.Count()</span>
+                @{
+                    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (Model.UsersIdWhoLiked.Contains(userId))
+                    {
+                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Remove Like">
+                            <i class="bi bi-heart-fill text-danger"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Like">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
+                    }
+                }
+            </span>
+        </div>
+    </div>
+    @if (ViewBag.WithoutGroup == null)
+    {
+        <h5>
+            @Model.ReviewItemNameEn
+            <partial name="_ReviewGroupIcon" model="Model.ReviewItemGroupNameEn" />
+        </h5>
+    }
+    <div class="ratings mb-2">
+        <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" title="@Model.CreatorFirstName @Model.CreatorLastName put @((int)Model.Grade) stars for this item"></i></span>
+        @for (int i = 10; i >= 1; i--)
+        {
+            <span for="@i" @(Model.Grade >= i ? "class=text-orange" : "")>&#9733</span>
+        }
+    </div>
+    <div class="markdown mt-2 limit-text limit-text-small">@Model.MarkdownText</div>
+
+    <div class="review-author fst-italic mt-2">
+        -
+        <a asp-action="Details" asp-controller="User" asp-route-id="@Model.CreatorId"> @Model.CreatorFirstName @Model.CreatorLastName</a>
+        <partial name="_ComputedCreatedTime" model="Model.CreatedTime" />
+    </div>
+
+    <div class="d-flex justify-content-end align-items-center">
+        <a asp-action="Details" asp-controller="Reviews" asp-route-id="@Model.Id">Go to review</a>
+        @if (Model.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@Model.Id" class="ms-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger fs-4"></i></a>
+        }
+    </div>
+</div>

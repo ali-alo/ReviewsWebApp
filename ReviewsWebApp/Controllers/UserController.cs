@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Repositories.Interfaces;
 using System.Security.Claims;
 
@@ -8,15 +10,13 @@ namespace ReviewsWebApp.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
-        private readonly IReviewRepository _reviewRepository;
 
-        public UserController(IUserRepository userRepository, IReviewRepository reviewRepository)
+        public UserController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _reviewRepository = reviewRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult List()
         {
             return View();
         }
@@ -40,6 +40,16 @@ namespace ReviewsWebApp.Controllers
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             return RedirectToAction("Index", "Reviews");
+        }
+
+        public async Task<IActionResult> Details(string id)
+        {
+            var user = await _userRepository.GetUserDto(id);
+            if (user == null)
+                return NotFound();
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == id)
+                user.IsOwningAccount = true;
+            return View(user);
         }
     }
 }

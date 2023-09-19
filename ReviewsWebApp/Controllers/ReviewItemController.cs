@@ -109,11 +109,12 @@ namespace ReviewsWebApp.Controllers
 
         public async Task<ActionResult> Details(int id)
         {
-            var reviewItem = await _repository.GetReviewItemWithReviews(id);
+            var reviewItem = await _repository.GetReviewItemById(id);
             if (reviewItem is null)
                 return NotFound();
             string containerLink = _imageService.GetContainerLink();
-            return View(new ReviewItemDetailsViewModel { ReviewItem = reviewItem, ContainerLink = containerLink});
+            var reviews = await _repository.GetReviewItemReviews(id);
+            return View(new ReviewItemDetailsViewModel { ReviewItem = reviewItem, Reviews = reviews, ContainerLink = containerLink});
         }
 
         private async Task<bool> TryUpdateItemImage(ReviewItemDto reviewItemDto, string oldImageGuid)

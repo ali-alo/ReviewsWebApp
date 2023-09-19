@@ -213,3 +213,83 @@ comments-section {
 .login-overlay {
     background-color: rgba(255, 255, 255, 0.9);
 }
+
+.review {
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+    .review h4 {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    .review h5 {
+        font-size: 1.2rem;
+        color: #555;
+    }
+
+    .review .markdown {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .review p {
+        margin-bottom: 5px;
+    }
+
+.limit-text-small {
+    -webkit-line-clamp: 4;
+}
+
+.markdown.limit-text-small h1,
+.markdown.limit-text-small h2,
+.markdown.limit-text-small h3,
+.markdown.limit-text-small h4,
+.markdown.limit-text-small h5,
+.markdown.limit-text-small h6,
+.markdown.limit-text-small p {
+    font-size: 1rem;
+}
+
+
+.nav-link {
+    margin: 0 7px;
+    position: relative;
+    text-decoration: none;
+}
+
+    .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: rebeccapurple;
+        transition: width 0.4s;
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+
+.rotate-30,
+.rotate-15,
+.hover-increase {
+    transition: transform 0.3s;
+}
+
+
+.rotate-30:hover {
+    transform: rotate(30deg);
+}
+
+.rotate-15:hover {
+    transform: rotate(15deg);
+}
+
+.hover-increase:hover {
+    transform: scale(1.15);
+}

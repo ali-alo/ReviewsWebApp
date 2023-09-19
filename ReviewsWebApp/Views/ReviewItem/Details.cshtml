@@ -18,9 +18,9 @@
         </h2>
     </div>
     <div class="mt-4">
-        @if (Model.ReviewItem.Reviews.Any())
+        @if (Model.Reviews.Any())
         {
-            var ratingAverage = Model.ReviewItem.Reviews.Average(r => r.Grade);
+            var ratingAverage = Model.Reviews.Average(r => r.Grade);
             <p class="ratings">
                 <span class="extra-info"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Average rating is based on the reviews users of our website leave"></i></span>
                 <span class="extra-info">@Math.Round(ratingAverage, 2)</span>
@@ -52,9 +52,10 @@
 
     
 <div id="reviews">
-    <h4>Reviews @Model.ReviewItem.Reviews.Count</h4>
-    @foreach (var review in Model.ReviewItem.Reviews)
+    <h4>Reviews @Model.Reviews.Count()</h4>
+    @foreach (var review in Model.Reviews)
     {
-    
+        ViewBag.WithoutGroup = true;
+        <partial name="_ReviewPeak" model="review" />
     }
 </div>

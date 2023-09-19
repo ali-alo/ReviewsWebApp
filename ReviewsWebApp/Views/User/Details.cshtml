@@ -1,0 +1,33 @@
+﻿@model UserDto
+
+<div class="d-flex">
+    <h2>@Model.FirstName @Model.LastName</h2>
+    <span class="fs-2 ms-auto">
+        <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <span class="rotate-30 d-block">
+                <i class="bi bi-gear text-primary"></i>
+            </span>
+        </a>
+    </span>
+</div>
+
+<div class="row m-0">
+    <div class="col-6">
+        <h3>Reviews (@Model.Reviews.Count())</h3>
+        @foreach (var review in Model.Reviews)
+        {
+            <partial name="_ReviewPeak" model="review" />
+        }
+    </div>
+
+    @if (Model.IsOwningAccount)
+    {  
+        <div class="col-6">
+            <h3>Liked Reviews (@Model.LikedReviews.Count())</h3>
+            @foreach (var review in Model.LikedReviews)
+            {
+                <partial name="_ReviewPeak" model="review" />
+            }
+        </div>
+    }
+</div>
