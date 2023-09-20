@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 using ReviewsWebApp.Areas.Identity;
 using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
@@ -123,6 +124,47 @@ namespace ReviewsWebApp.Controllers
             return Unauthorized();
         }
 
+        [Authorize]
+        [HttpPut] 
+        public async Task<IActionResult> Edit(ReviewFormViewModel model)
+        {
+            var reviewCopy = await _reviewRepository.GetReviewDtoById(model.Review.Id);
+            if (reviewCopy == null || !ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            // couldn't upload all images
+            if (!await TryUpdateReviewImages(model.Review, reviewCopy.Images)) 
+            {
+                //delete images that were uploaded
+                await DeleteReviewImagesFromAzure(model.Review.Images);
+                ModelState.AddModelError("ImageUploadError", "Couldn't upload image(s)");
+                return BadRequest(ModelState);
+            }
+
+            Review review = _mapper.Map<Review>(model.Review);
+            review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
+            if (!await _reviewRepository.UpdateReview(review))
+            {
+                ModelState.AddModelError("Update Error", "Couldn't update the record in the db");
+                return BadRequest(ModelState);
+            }
+            return Ok();
+            
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var review = await _reviewRepository.GetReviewDtoById(id);
+            if (review == null)
+                return BadRequest();
+            if (!await _reviewRepository.DeleteReview(id))
+                return BadRequest();
+            await DeleteReviewImagesFromAzure(review.Images);
+            return Ok();
+        }
+
         public async Task<ActionResult> Details(int id)
         {
             var reviewDto = await _reviewRepository.GetReviewDetailsDto(id);
@@ -143,5 +185,28 @@ namespace ReviewsWebApp.Controllers
 
         private async Task<List<Tag>> GetTags() => await _tagService.GetAllTags();
 
+        private async Task<bool> TryUpdateReviewImages(ReviewDto reviewDto, IEnumerable<string> oldImageGuids)
+        {
+            await DeleteReviewImagesFromAzure(oldImageGuids);
+            reviewDto.Images = await UploadReviewImagesToAzure(reviewDto.Files);
+
+            if (reviewDto.Images.Any(ig => string.IsNullOrEmpty(ig)))
+                return false;
+            return true;
+        }
+
+        private async Task DeleteReviewImagesFromAzure(IEnumerable<string> oldImageGuids)
+        {
+            foreach (var imgGuid in oldImageGuids)
+                await _imageService.DeleteImageFromAzure(imgGuid);
+        }
+        private async Task<List<string>> UploadReviewImagesToAzure(IEnumerable<IFormFile> imageFiles)
+        {
+            var imageGuidList = new List<string>();
+            foreach (var imageFile in imageFiles)
+                imageGuidList.Add(await _imageService.UploadImageToAzure(imageFile));
+            return imageGuidList;
+
+        }
     }
 }

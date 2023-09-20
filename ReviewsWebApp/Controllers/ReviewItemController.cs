@@ -73,29 +73,26 @@ namespace ReviewsWebApp.Controllers
         }
 
         [Authorize(Roles = ApplicationRoleTypes.Admin)]
-        [HttpPost]
+        [HttpPut]
         public async Task<ActionResult> Edit(ReviewItemDto reviewItemDto)
         {
-            var reviewCopy = await _repository.GetReviewItemById(reviewItemDto.Id);
-            if (reviewCopy == null)
-                return BadRequest();
+            var reviewItemCopy = await _repository.GetReviewItemById(reviewItemDto.Id);
+            if (reviewItemCopy == null || !ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (!ModelState.IsValid)
+            if (!await TryUpdateItemImage(reviewItemDto, reviewItemCopy.ImageGuid))
             {
-                reviewItemDto.ReviewGroup = reviewCopy.ReviewGroup;
-                return View(reviewItemDto);
+                ModelState.AddModelError("Image", "Couldn't upload an image");
+                return View(ModelState);
             }
-
-            if (!await TryUpdateItemImage(reviewItemDto, reviewCopy.ImageGuid))
-                return View(reviewItemDto);
             
-
             var review = _mapper.Map<ReviewItem>(reviewItemDto);
             await _repository.UpdateReviewItem(review);
-            return RedirectToAction("List");
+            return Ok();
         }
 
         [Authorize(Roles = ApplicationRoleTypes.Admin)]
+        [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
             var review  = await _repository.GetReviewItemById(id);
@@ -103,8 +100,9 @@ namespace ReviewsWebApp.Controllers
             {
                 await _repository.DeleteReviewItem(id);
                 await DeleteImageFromAzure(review.ImageGuid);
+                return Ok();
             }
-            return RedirectToAction("List");
+            return BadRequest();
         }
 
         public async Task<ActionResult> Details(int id)

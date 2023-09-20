@@ -21,9 +21,16 @@ namespace ReviewsWebApp.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task DeleteReview(int id)
+        public async Task<bool> DeleteReview(int id)
         {
-            throw new NotImplementedException();
+            var review = await _context.Reviews.FirstOrDefaultAsync(review => review.Id == id);
+            if (review != null)
+            {
+                _context.Reviews.Remove(review);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
         public Task<List<Review>> FindReviews(string searchText)
@@ -91,8 +98,8 @@ namespace ReviewsWebApp.Repositories
                         MarkdownText = r.MarkdownText,
                         Grade= r.Grade,
                         ReviewItemId = r.ReviewItemId,
-                        CreatorId = r.CreatorId
-                        // TODO: add comments and likes amount
+                        CreatorId = r.CreatorId,
+                        Images = r.Images.Select(img => img.ImageGuid).ToList(),
                     })
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
@@ -112,9 +119,17 @@ namespace ReviewsWebApp.Repositories
         public async Task<bool> ReviewExists(int reviewItemId) =>
             await _context.Reviews.AnyAsync(r => r.Id == reviewItemId);
 
-        public Task UpdateReview(Review review)
+        public async Task<bool> UpdateReview(Review review)
         {
-            throw new NotImplementedException();
+            var reviewFromDb = _context.Reviews.Include(r => r.Images).Single(r => r.Id == review.Id);
+            if (reviewFromDb == null)
+                return false;
+            reviewFromDb.Title = review.Title;
+            reviewFromDb.MarkdownText = review.MarkdownText;
+            reviewFromDb.Images = review.Images;
+            reviewFromDb.Grade = review.Grade;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<int> UserAlreadyLeftReview(int reviewItemId, string userId)

@@ -187,7 +187,7 @@ namespace ReviewsWebApp.Repositories
                     .ToListAsync();
             user.ReviewsCount = userReviews.Count;
             user.LikesAmount = userReviews.Any() ? userReviews.SelectMany(r => r.UsersWhoLiked).Count() : 0;
-            user.ReviewsAverageRating = userReviews.Any() ? userReviews.Average(r => r.Grade) : 0;
+            user.ReviewsAverageRating = userReviews.Any() ? Math.Round(userReviews.Average(r => r.Grade), 2) : 0;
             user.IsAdmin = await IsUserAdmin(user.Id);
         }
 
@@ -204,13 +204,5 @@ namespace ReviewsWebApp.Repositories
 
             return await query.AnyAsync();
         }
-
-        public async Task<List<string>> GetUserRoles(string userId) =>
-            await (
-                from u in _context.UserRoles
-                join ur in _context.UserRoles on u.UserId equals ur.UserId
-                join r in _context.Roles on ur.RoleId equals r.Id
-                where u.UserId == userId
-                select r.Name).ToListAsync();
     }
 }

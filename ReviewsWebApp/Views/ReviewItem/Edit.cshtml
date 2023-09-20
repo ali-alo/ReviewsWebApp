@@ -9,14 +9,14 @@
 
 <h2 class="text-center">@(cultureName == "en" ? Model.NameEn : Model.NameRu)<partial name="_ReviewGroupIcon" model="Model.ReviewGroup.NameEn" /></h2>
 
-<form asp-antiforgery="true" asp-action="Edit" asp-controller="ReviewItem" method="post" enctype="multipart/form-data">
+<form asp-antiforgery="true" asp-action="Edit" asp-controller="ReviewItem" method="post" enctype="multipart/form-data" id="putForm">
     
-    <input asp-for="Id" class="form-control visually-hidden" disabled/>
+    <input asp-for="Id" class="form-control visually-hidden" id="reviewItemId" />
 
     <div class="row mt-4">
         <div class="form-group col-6">
             <label asp-for="NameEn" class="form-label"></label>
-            <input asp-for="NameEn" class="form-control" />
+            <input asp-for="NameEn" class="form-control" id="focusInput" />
             <span asp-validation-for="NameEn" class="text-danger"></span>
         </div>
 
@@ -50,9 +50,12 @@
     </div>
 
     <output class="w-100 d-flex justify-content-start flex-wrap position-relative mt-3"></output>
+
+    <div id="validationErrors" class="text-danger mt-3"></div>
+
     <div class="d-flex flex-end mt-3">
-        <button type="submit" class="btn btn-primary me-3">@_localizer["Save"]</button>
-        <a class="btn btn-danger" asp-action="Delete" asp-controller="ReviewItem" asp-route-id="@Model.Id">@_localizer["Delete"]</a>
+        <button type="submit" class="btn btn-primary me-3" id="submitButton">@_localizer["Save"]</button>
+        <button class="btn btn-danger" id="deleteButton">@_localizer["Delete"]</button>
     </div>
 </form>
 
@@ -83,4 +86,50 @@
         output.innerHTML = "";
         imgInput.value = "";
     }
+
+    // ajax to use post and delete methods
+    const reviewItemId = document.getElementById("reviewItemId").value;
+    document.getElementById("submitButton").addEventListener("click", function (event) {
+        event.preventDefault();
+        var formData = new FormData(document.getElementById("putForm"));
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/ReviewItem/Edit", true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = "/ReviewItem/Details/" + reviewItemId;
+            } else {
+                const validationErrors = JSON.parse(xhr.responseText);
+                const validationErrorsDiv = document.getElementById("validationErrors");
+                validationErrorsDiv.innerHTML = "Validation Errors:<br>";
+                for (const key in validationErrors) {
+                    if (validationErrors.hasOwnProperty(key)) {
+                        const errors = validationErrors[key];
+                        for (const error of errors) {
+                            validationErrorsDiv.innerHTML += `${error}<br>`;
+                        }
+                    }
+                }
+            }
+        };
+        xhr.send(formData);
+    });
+
+    function deleteReviewItem(reviewItemId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", "/ReviewItem/Delete/" + reviewItemId, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = "/ReviewItem/List";
+            } else {
+                console.error("Delete review item request failed with status: " + xhr.status);
+            }
+        };
+        xhr.send();
+    }
+
+    document.getElementById("deleteButton").addEventListener("click", function (event) {
+        event.preventDefault();
+        var reviewItemId = document.getElementById("reviewItemId").value;
+        deleteReviewItem(reviewItemId);
+    });
 </script>

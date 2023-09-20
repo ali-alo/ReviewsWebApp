@@ -3,16 +3,19 @@
 <partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
 
 <hr />
-<h3>Edit your review</h3>
-
+<div class="d-flex">
+    <h3>Edit the review</h3>
+    <h5 class="ms-auto"><a asp-action="Details" asp-controller="Reviews" asp-route-id="@Model.Review.Id">View review</a></h5>
+</div>
 <div class="mt-4">
-    @using (Html.BeginForm("Edit", "Reviews", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Edit", "Reviews", FormMethod.Post, new { enctype = "multipart/form-data", id ="putForm" }))
     {
         @Html.AntiForgeryToken()
+        <input asp-for="Review.Id" class="form-control visually-hidden" id="reviewId"/>
 
         <div class="form-group">
             <label asp-for="Review.Title" class="form-label"></label>
-            <input asp-for="Review.Title" class="form-control" />
+            <input asp-for="Review.Title" class="form-control" id="focusInput" />
             <span asp-validation-for="Review.Title" class="text-danger"></span>
         </div>
 
@@ -60,15 +63,16 @@
                         <input type="radio" asp-for="Review.Grade" value="@i" id="@i" />
                         <label for="@i">&#9733</label>
                     }
-
                 }
             </div>
             <p class="lead"><span id="choice">?</span>/10</p>
         </div>
 
+        <div id="validationErrors" class="text-danger text-end"></div>
+
         <div class="d-flex mt-3 justify-content-end">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a class="btn btn-danger d-inline ms-2" asp-action="Delete" asp-controller="Reviews" asp-route-id="@Model.Review.Id">Delete</a>
+            <button type="submit" class="btn btn-primary" id="submitButton">Save</button>
+            <button class="btn btn-danger d-inline ms-2" id="deleteButton">Delete</button>
         </div>
     }
 </div>
@@ -118,5 +122,50 @@
         imgInput.files = updatedFiles.files;
     }
 
-    
+
+    document.getElementById("submitButton").addEventListener("click", function (event) {
+        event.preventDefault();
+        const reviewId = document.getElementById("reviewId").value;
+        var formData = new FormData(document.getElementById("putForm"));
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/Reviews/Edit", true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = "/Reviews/Details/" + reviewId;
+            } else {
+                const validationErrors = JSON.parse(xhr.responseText);
+                const validationErrorsDiv = document.getElementById("validationErrors");
+                validationErrorsDiv.innerHTML = "Validation Errors:<br>";
+                for (const key in validationErrors) {
+                    if (validationErrors.hasOwnProperty(key)) {
+                        const errors = validationErrors[key];
+                        for (const error of errors) {
+                            validationErrorsDiv.innerHTML += `${error}<br>`;
+                            console.log(`${key}: ${error}<br>`);
+                        }
+                    }
+                }
+            }
+        };
+        xhr.send(formData);
+    });
+
+    function deleteReviewItem(reviewId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("DELETE", "/Reviews/Delete/" + reviewId, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                window.location.href = "/Reviews";
+            } else {
+                console.error("Delete review request failed with status: " + xhr.status);
+            }
+        };
+        xhr.send();
+    }
+
+    document.getElementById("deleteButton").addEventListener("click", function (event) {
+        event.preventDefault();
+        const reviewId = document.getElementById("reviewId").value;
+        deleteReviewItem(reviewId);
+    });
 </script>

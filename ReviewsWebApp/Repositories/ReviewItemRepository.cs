@@ -74,14 +74,14 @@ namespace ReviewsWebApp.Repositories
 
         public async Task UpdateReviewItem(ReviewItem item)
         {
-            var review = await GetReviewItemById(item.Id);
-            if (review == null)
+            var reviewItem = await GetReviewItemById(item.Id);
+            if (reviewItem == null)
                 return;
-            review.NameEn = item.NameEn;
-            review.NameRu = item.NameRu;
-            review.DescriptionEn = item.DescriptionEn;
-            review.DescriptionRu = item.DescriptionRu;
-            review.ImageGuid = item.ImageGuid;
+            reviewItem.NameEn = item.NameEn;
+            reviewItem.NameRu = item.NameRu;
+            reviewItem.DescriptionEn = item.DescriptionEn;
+            reviewItem.DescriptionRu = item.DescriptionRu;
+            reviewItem.ImageGuid = item.ImageGuid;
             await _context.SaveChangesAsync();
         }
     }

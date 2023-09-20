@@ -9,7 +9,7 @@
 <form asp-controller="User" asp-action="List" method="get">
     <div class="d-flex flex-end">
         <div class="input-group mb-3">
-            <input type="text" class="form-control no-outline" placeholder="Search for users..." name="SearchQuery" value="@searchQuery" />
+            <input type="text" class="form-control no-outline" placeholder="Search for users..." name="SearchQuery" id="focusInput" value="@searchQuery" />
             <button type="submit" class="input-group-text">
                 <i class="bi bi-search"></i>
             </button>

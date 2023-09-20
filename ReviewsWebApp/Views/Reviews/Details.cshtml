@@ -1,5 +1,13 @@
 ﻿@using System.Security.Claims;
+@using ReviewsWebApp.Areas.Identity;
 @model ReviewDetailsViewModel
+
+@{
+    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool CanEditReview() =>
+        Model.ReviewDetails.CreatorId is not null && Model.ReviewDetails.CreatorId == userId
+        || User.IsInRole(ApplicationRoleTypes.Admin);
+}
 
 <partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
 <hr />
@@ -10,22 +18,23 @@
         <span>@Model.ReviewDetails.Title</span>
         <div class="ms-auto d-flex flex-column">
             <span>
-                <span>@Model.ReviewDetails.UsersIdWhoLiked.Count()</span>
-                @{
-                    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (Model.ReviewDetails.UsersIdWhoLiked.Contains(userId))
-                    {
-                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Remove Like">
-                            <i class="bi bi-heart-fill text-danger"></i>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Like">
-                            <i class="bi bi-heart-fill"></i>
-                        </a>
-                    }
+                @if (CanEditReview())
+                {
+                    <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@Model.ReviewDetails.Id" class="me-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger fs-3"></i></a>
                 }
+                @if (Model.ReviewDetails.UsersIdWhoLiked.Contains(userId))
+                {
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Remove Like">
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    </a>
+                }
+                else
+                {
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Like">
+                        <i class="bi bi-heart-fill"></i>
+                    </a>
+                }
+                <span class="ms-2">@Model.ReviewDetails.UsersIdWhoLiked.Count()</span>
             </span>
         </div>
     </div>

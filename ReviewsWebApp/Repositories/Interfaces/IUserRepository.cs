@@ -15,6 +15,5 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task<UserDto?> GetUserDto(string userId);
         Task<List<UserListDto>> GetAllUsers();
         Task<List<UserListDto>> SearchUsers(string searchQuery);
-        Task<List<string>> GetUserRoles(string userId);
     }
 }

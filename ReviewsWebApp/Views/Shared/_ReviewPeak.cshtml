@@ -1,27 +1,37 @@
 ﻿@using System.Security.Claims;
+@using ReviewsWebApp.Areas.Identity;
 @model ReviewDetailsDto
+
+@{
+    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool CanEditReview() =>
+        Model.CreatorId is not null && Model.CreatorId == userId
+        || User.IsInRole(ApplicationRoleTypes.Admin);
+}
 
 <div class="review p-3 mb-4">
     <div class="review-title fs-3 fw-bold mb-2 d-flex">
         <span>@Model.Title</span>
         <div class="ms-auto d-flex flex-column">
             <span>
-                <span>@Model.UsersIdWhoLiked.Count()</span>
-                @{
-                    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    if (Model.UsersIdWhoLiked.Contains(userId))
-                    {
-                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Remove Like">
-                            <i class="bi bi-heart-fill text-danger"></i>
-                        </a>
-                    }
-                    else
-                    {
-                        <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Like">
-                            <i class="bi bi-heart-fill"></i>
-                        </a>
-                    }
+                @if (CanEditReview())
+                {
+                    <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@Model.Id" class="me-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger"></i></a>
                 }
+                
+                @if (Model.UsersIdWhoLiked.Contains(userId))
+                {
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Remove Like">
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    </a>
+                }
+                else
+                {
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Like">
+                        <i class="bi bi-heart-fill"></i>
+                    </a>
+                }
+                <span class="ms-2">@Model.UsersIdWhoLiked.Count()</span>
             </span>
         </div>
     </div>
@@ -49,9 +59,5 @@
 
     <div class="d-flex justify-content-end align-items-center">
         <a asp-action="Details" asp-controller="Reviews" asp-route-id="@Model.Id">Go to review</a>
-        @if (Model.CreatorId == @User.FindFirstValue(ClaimTypes.NameIdentifier))
-        {
-            <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@Model.Id" class="ms-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger fs-4"></i></a>
-        }
     </div>
 </div>

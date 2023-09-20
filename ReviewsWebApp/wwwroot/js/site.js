@@ -2,6 +2,15 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+
+var focusInput = document.getElementById("focusInput");
+if (focusInput) {
+    window.onload = function () {
+        focusInput.focus();
+        focusInput.setSelectionRange(focusInput.value.length, focusInput.value.length)
+    }
+}
+
 function addImageClickEvents() {
     const imgs = document.querySelectorAll(".img-clickable");
     const fullPage = document.querySelector("#fullpage");
