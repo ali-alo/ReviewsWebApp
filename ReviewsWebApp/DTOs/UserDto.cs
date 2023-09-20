@@ -10,5 +10,7 @@ namespace ReviewsWebApp.DTOs
         public IEnumerable<ReviewDetailsDto> Reviews { get; set; }
         public IEnumerable<ReviewDetailsDto> LikedReviews { get; set; }
         public bool IsOwningAccount { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool IsBlocked { get; set; }
     }
 }

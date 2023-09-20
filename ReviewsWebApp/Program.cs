@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
+using ReviewsWebApp.Middleware;
 using ReviewsWebApp.Options;
 using ReviewsWebApp.Repositories;
 using ReviewsWebApp.Repositories.Interfaces;
@@ -82,6 +83,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+//sign out users if their account was locked out
+app.UseMiddleware<LockoutMiddleware>();
 
 app.MapControllerRoute(
     name: "default",

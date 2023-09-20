@@ -1,17 +1,67 @@
-﻿@model UserDto
+﻿@using ReviewsWebApp.Areas.Identity;
+@model UserDto
+
+@{
+    bool admin = User.IsInRole(ApplicationRoleTypes.Admin);
+}
 
 <div class="d-flex">
     <h2>@Model.FirstName @Model.LastName</h2>
-    <span class="fs-2 ms-auto">
-        <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+    @if (admin)
+    {
+        <div class="btn-group ms-5" role="group">
+            @if (Model.IsBlocked)
+            {
+                <a asp-action="Unblock" asp-controller="User" asp-route-id="@Model.Id" type="button" class="btn btn-outline-danger d-flex align-items-center">Unblock</a>
+            }
+            else
+            {
+                <a asp-action="Block" asp-controller="User" asp-route-id="@Model.Id" type="button" class="btn btn-outline-danger d-flex align-items-center">Block</a>
+            }
+
+            @if (Model.IsAdmin)
+            {
+                <a asp-action="RemoveAdminRights" asp-controller="User" asp-route-id="@Model.Id" type="button" class="btn btn-outline-danger d-flex align-items-center">Remove admin rights</a>
+            }
+            else
+            {
+                <a asp-action="MakeAdmin" asp-controller="User" asp-route-id="@Model.Id" type="button" class="btn btn-outline-danger d-flex align-items-center">Make admin</a>
+            }
+            <a asp-action="Delete" asp-controller="User" asp-route-id="@Model.Id" type="button" class="btn btn-outline-danger d-flex align-items-center">Delete</a>
+        </div>
+    }
+    @if (Model.IsOwningAccount)
+    {
+        <span class="fs-2 ms-auto">
+            <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
             <span class="rotate-30 d-block">
                 <i class="bi bi-gear text-primary"></i>
             </span>
-        </a>
-    </span>
+            </a>
+        </span>
+    }
 </div>
+@if (Model.IsBlocked)
+{
+    <small class="fs-5 text-danger">Blocked</small>
+}
+else
+{
+    <small class="fs-5 text-primary">Active</small>
+}
 
-<div class="row m-0">
+@if(admin)
+{
+    @if (Model.IsAdmin)
+    {
+        <small class="ms-2 fs-5 text-success">Admin</small>
+    }
+    else
+    {
+        <small class="ms-2 fs-5 text-primary">User</small>
+    }
+}
+<div class="row m-0 mt-4">
     <div class="col-6">
         <h3>Reviews (@Model.Reviews.Count())</h3>
         @foreach (var review in Model.Reviews)

@@ -24,7 +24,9 @@ h1, h2, h3 {
 
 .btn:focus,
 textarea:focus,
-textarea:active {
+textarea:active,
+.no-outline:focus,
+.no-outline:active {
     outline: none;
     box-shadow: none !important;
 }

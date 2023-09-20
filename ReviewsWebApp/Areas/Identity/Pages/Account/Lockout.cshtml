@@ -1,0 +1,13 @@
+﻿@page
+@inject IViewLocalizer _localizer
+@model LockoutModel
+@{
+    ViewData["Title"] = _localizer.GetString("Title");
+}
+
+<header>
+    <h1 class="text-danger">@ViewData["Title"]</h1>
+    <p class="text-danger">@_localizer.GetString("Info")</p>
+    <a href="~/Home">@_localizer.GetString("Home")</a>
+    <a href="~/Identity/Account/Login" class="ms-3">@_localizer.GetString("Login")</a>
+</header>

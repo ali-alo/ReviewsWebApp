@@ -1,1 +1,59 @@
-﻿<h3>You will see a full list of users here</h3>
+﻿@model IEnumerable<UserListDto>
+
+@{
+    var searchQuery = ViewData["SearchQuery"] as string;
+}
+
+<h3>You will see a full list of users here</h3>
+
+<form asp-controller="User" asp-action="List" method="get">
+    <div class="d-flex flex-end">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control no-outline" placeholder="Search for users..." name="SearchQuery" value="@searchQuery" />
+            <button type="submit" class="input-group-text">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+        <div class="col-3">
+            <a class="btn btn-outline-secondary ms-3" asp-action="List" asp-controller="User">Reset search</a>
+        </div>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Reviews Count 
+                <span class="extra-info float-end"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows how many reviews a user has written"></i></span>
+                </th>
+            <th>Likes Amount
+                <span class="extra-info float-end"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows how many likes a user has received for all their reviews"></i></span>
+            </th>
+            <th>Average Rating
+                <span class="extra-info float-end"><i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Shows the average rating a user put on a review item"></i></span>
+            </th>
+            <th>Is Blocked</th>
+            <th>Is Admin</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>
+                    <a asp-action="Details" asp-controller="User" asp-route-id="@user.Id">@user.FirstName @user.LastName</a>
+                </td>
+                <td>@user.ReviewsCount</td>
+                <td>@user.LikesAmount</td>
+                <td>@user.ReviewsAverageRating</td>
+                <td>@(user.IsBlocked ? Html.Raw("<span class=\"text-danger fw-bold\">Yes</span>") : "No")</td>
+                <td class="text-center">
+                    <i class="fs-4 bi @(user.IsAdmin ? "bi-check-circle-fill text-success" : "bi-x-circle-fill text-danger")"></i>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

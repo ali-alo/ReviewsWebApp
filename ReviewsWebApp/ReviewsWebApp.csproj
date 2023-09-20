@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\Areas\Identity\Account\**" />
+    <Content Remove="Resources\Areas\Identity\Account\**" />
+    <EmbeddedResource Remove="Resources\Areas\Identity\Account\**" />
+    <None Remove="Resources\Areas\Identity\Account\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.14.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.21" />
@@ -64,6 +71,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ReviewItemResource.resx</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Areas\Identity\Pages\Account\Manage\" />
   </ItemGroup>
 
 </Project>
