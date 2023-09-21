@@ -9,10 +9,12 @@ namespace ReviewsWebApp.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
+        private readonly IReviewRepository _reviewRepository;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserRepository userRepository, IReviewRepository reviewRepository)
         {
             _userRepository = userRepository;
+            _reviewRepository = reviewRepository;
         }
 
         public async Task<IActionResult> Details(string id)
@@ -20,8 +22,12 @@ namespace ReviewsWebApp.Controllers
             var user = await _userRepository.GetUserDto(id);
             if (user == null)
                 return NotFound();
+            user.Reviews = await _reviewRepository.GetUserReviews(id);
             if (User.FindFirstValue(ClaimTypes.NameIdentifier) == id)
+            {
                 user.IsOwningAccount = true;
+                user.LikedReviews = await _reviewRepository.GetUserLikedReviews(id);
+            }
             return View(user);
         }
 

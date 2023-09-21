@@ -96,39 +96,8 @@ namespace ReviewsWebApp.Repositories
                     Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    IsBlocked = IsUserBlocked(user),
-                    Reviews = user.Reviews.Select(r => new ReviewDetailsDto
-                    {
-                        Id = r.Id,
-                        Title = r.Title,
-                        MarkdownText = r.MarkdownText,
-                        Grade = r.Grade,
-                        CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
-                        CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
-                        CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
-                        ReviewItemNameEn = r.ReviewItem.NameEn,
-                        ReviewItemNameRu = r.ReviewItem.NameRu,
-                        ReviewItemId = r.ReviewItem.Id,
-                        ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                        UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
-                    }).ToList(),
-                    LikedReviews = user.LikedReviews.Select(r => new ReviewDetailsDto
-                    {
-                        Id = r.Id,
-                        Title = r.Title,
-                        MarkdownText = r.MarkdownText,
-                        Grade = r.Grade,
-                        CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
-                        CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
-                        CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
-                        ReviewItemNameEn = r.ReviewItem.NameEn,
-                        ReviewItemNameRu = r.ReviewItem.NameRu,
-                        ReviewItemId = r.ReviewItem.Id,
-                        ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                        UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync(r => r.Id == userId);
+                    IsBlocked = IsUserBlocked(user)
+                }).FirstOrDefaultAsync(r => r.Id == userId);
 
             if (user != null)
                 user.IsAdmin = await IsUserAdmin(user.Id);

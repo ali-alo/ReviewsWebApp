@@ -13,8 +13,11 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task<bool> DeleteReview(int id);
         Task<int> GetReviewsCount(int reviewItemId);
         Task<decimal> GetReviewsAverage(int reviewItemId);
-        Task<List<Review>> FindReviews(string searchText);
         Task<int> UserAlreadyLeftReview(int reviewItemId, string userId);
-        Task<bool> ReviewExists(int reviewItemId);
+        Task<List<ReviewDetailsDto>> GetMostPopularReviews(int takeAmount = 3, int skipAmount = 0);
+        Task<List<ReviewDetailsDto>> GetMoreRecentReviews(int takeAmount = 3, int skipAmount = 0);
+        Task<List<ReviewDetailsDto>> GetReviewItemReviews(int reviewItemId);
+        Task<List<ReviewDetailsDto>> GetUserReviews(string userId);
+        Task<List<ReviewDetailsDto>> GetUserLikedReviews(string userId);
     }
 }

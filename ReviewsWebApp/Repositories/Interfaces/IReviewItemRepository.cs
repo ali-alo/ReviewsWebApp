@@ -11,6 +11,5 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task UpdateReviewItem(ReviewItem item);
         Task DeleteReviewItem(int id);
         Task<bool> ReviewItemExists(int id);
-        Task<List<ReviewDetailsDto>> GetReviewItemReviews(int id);
     }
 }

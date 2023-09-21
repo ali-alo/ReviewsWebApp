@@ -17,15 +17,18 @@ namespace ReviewsWebApp.Controllers
         private readonly IMapper _mapper;
         private readonly IReviewGroupRepository _reviewGroupRepository;
         private readonly ISearchService _searchService;
+        private readonly IReviewRepository _reviewRepository;
 
         public ReviewItemController(IReviewItemRepository repository, IImageService imageService,
-            IMapper mapper, IReviewGroupRepository reviewGroupRepository, ISearchService searchService)
+            IMapper mapper, IReviewGroupRepository reviewGroupRepository, ISearchService searchService,
+            IReviewRepository reviewRepository)
         {
             _repository = repository;
             _imageService = imageService;
             _mapper = mapper;
             _reviewGroupRepository = reviewGroupRepository;
             _searchService = searchService;
+            _reviewRepository = reviewRepository;
         }
 
         public async Task<IActionResult> List()
@@ -115,7 +118,7 @@ namespace ReviewsWebApp.Controllers
             if (reviewItem is null)
                 return NotFound();
             string containerLink = _imageService.GetContainerLink();
-            var reviews = await _repository.GetReviewItemReviews(id);
+            var reviews = await _reviewRepository.GetReviewItemReviews(id);
             return View(new ReviewItemDetailsViewModel { ReviewItem = reviewItem, Reviews = reviews, ContainerLink = containerLink});
         }
 

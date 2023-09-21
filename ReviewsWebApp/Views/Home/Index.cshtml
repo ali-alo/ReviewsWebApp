@@ -1,10 +1,35 @@
 ﻿@inject IViewLocalizer _localizer;
+@model HomeViewModel
 
 @{
     ViewData["Title"] = _localizer["Title"];
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mt-2">
+    @foreach (var tag in Model.Tags)
+    {
+        <span>@tag.Name</span>
+    }
+</div>
+
+<div class="mt-4 row">
+    <div class="col-6">
+        <h3>Most popular reviews</h3>
+        @foreach (var review in Model.MostLikedReviews)
+        {
+            <partial name="_ReviewPeak" model="review" />
+        }
+    </div>
+   
+    <div class="col-6">
+        <h3>Latest reviews</h3>
+        @foreach (var review in Model.LatestReviews)
+        {
+            <partial name="_ReviewPeak" model="review" />
+        }
+    </div>
+
+    <div class="text-center">
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Reviews">View All Reviews</a>
+    </div>
 </div>

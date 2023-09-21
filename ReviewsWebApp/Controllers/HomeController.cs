@@ -1,24 +1,30 @@
-﻿using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.AspNetCore.Mvc;
 using ReviewsWebApp.Models;
+using ReviewsWebApp.Repositories.Interfaces;
+using ReviewsWebApp.ViewModels;
 using System.Diagnostics;
-using System.Globalization;
 
 namespace ReviewsWebApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IReviewRepository _reviewRepository;
+        private readonly ITagRepository _tagRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IReviewRepository reviewRepository, 
+            ITagRepository tagRepository)
         {
-            _logger = logger;
+            _reviewRepository = reviewRepository;
+            _tagRepository = tagRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var latestReviews = await _reviewRepository.GetMoreRecentReviews();
+            var mostPopularReview = await _reviewRepository.GetMostPopularReviews();
+            var tags = await _tagRepository.GetAllTags();
+            var model = new HomeViewModel(latestReviews, mostPopularReview, tags);
+            return View(model);
         }
 
 

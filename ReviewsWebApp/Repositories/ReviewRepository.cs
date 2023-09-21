@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ReviewsWebApp.Data;
 using ReviewsWebApp.DTOs;
+using ReviewsWebApp.Extensions;
 using ReviewsWebApp.Models;
 using ReviewsWebApp.Repositories.Interfaces;
 
@@ -13,6 +14,14 @@ namespace ReviewsWebApp.Repositories
         public ReviewRepository(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<List<ReviewDetailsDto>> GetAllReviews()
+        {
+            return await _context.Reviews
+                .IncludeCommon()
+                .Select(r => MapToDto(r))
+                .ToListAsync();
         }
 
         public async Task CreateReview(Review review)
@@ -33,61 +42,47 @@ namespace ReviewsWebApp.Repositories
             return false;
         }
 
-        public Task<List<Review>> FindReviews(string searchText)
+        private void UpdateReviewProperties(Review review)
         {
-            throw new NotImplementedException();
+            review.Title = review.Title;
+            review.MarkdownText = review.MarkdownText;
+            review.Images = review.Images;
+            review.Grade = review.Grade;
+            review.Tags = review.Tags;
         }
 
-        public async Task<List<ReviewDetailsDto>> GetAllReviews()
-        {
-            return await _context.Reviews
-                .Include(r => r.ApplicationUser)
-                .Include(r => r.ReviewItem)
-                .Include(r => r.Images)
-                .Include(r => r.RatedReviews)
-                .Select(r => new ReviewDetailsDto
-                {
-                    Id = r.Id,
-                    Title = r.Title,
-                    MarkdownText = r.MarkdownText,
-                    Images = r.Images,
-                    Grade = r.Grade,
-                    CreatedTime = r.CreatedAt,
-                    CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
-                    CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
-                    CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
-                    ReviewItemNameEn = r.ReviewItem.NameEn,
-                    ReviewItemNameRu = r.ReviewItem.NameRu,
-                    ReviewItemImageGuid = r.ReviewItem.ImageGuid,
-                    ReviewItemId = r.ReviewItem.Id,
-                    ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                    ReviewRatings = r.RatedReviews,
-                    UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList(),
-                    Tags = r.Tags
-                }).ToListAsync();
-        }
+        public async Task<List<ReviewDetailsDto>> GetMostPopularReviews(int takeAmount = 3, int skipAmount = 0) => await 
+            _context.Reviews
+            .IncludeCommon()
+            .OrderByDescending(r => r.UsersWhoLiked.Count)
+            .Select(r => MapToDto(r))
+            .Skip(skipAmount)
+            .Take(takeAmount)
+                .ToListAsync();
 
-        public Task<ReviewDetailsDto?> GetReviewDetailsDto(int id) =>
-            _context.Reviews.Select(r => new ReviewDetailsDto
-            {
-                Id = r.Id,
-                Title = r.Title,
-                MarkdownText = r.MarkdownText,
-                Images = r.Images,
-                Grade = r.Grade,
-                CreatedTime = r.CreatedAt,
-                CreatorFirstName = r.ApplicationUser == null ? null : r.ApplicationUser.FirstName,
-                CreatorLastName = r.ApplicationUser == null ? null : r.ApplicationUser.LastName,
-                CreatorId = r.ApplicationUser == null ? null : r.ApplicationUser.Id,
-                ReviewItemNameEn = r.ReviewItem.NameEn,
-                ReviewItemNameRu = r.ReviewItem.NameRu,
-                ReviewItemImageGuid = r.ReviewItem.ImageGuid,
-                ReviewItemId = r.ReviewItem.Id,
-                ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
-                ReviewRatings = r.RatedReviews,
-                UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList(),
-                Tags = r.Tags
-            }).FirstOrDefaultAsync(r => r.Id == id);
+        public async Task<List<ReviewDetailsDto>> GetMoreRecentReviews(int takeAmount = 3, int skipAmount = 0) => await 
+            _context.Reviews
+            .IncludeCommon()
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => MapToDto(r))
+            .Skip(skipAmount)
+            .Take(takeAmount)
+            .ToListAsync();
+
+        public async Task<ReviewDetailsDto?> GetReviewDetailsDto(int id) => await
+            _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.Id == id)
+            .Select(r => MapToDto(r))
+            .FirstOrDefaultAsync();
+
+        public async Task<List<ReviewDetailsDto>> GetReviewItemReviews(int reviewItemId) => await
+            _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.ReviewItem.Id == reviewItemId)
+            .OrderByDescending(u => u.UsersWhoLiked.Count())
+            .Select(r => MapToDto(r))
+            .ToListAsync();
 
         public async Task<ReviewDto?> GetReviewDtoById(int id)
         {
@@ -119,22 +114,34 @@ namespace ReviewsWebApp.Repositories
             .Where(r => r.ReviewItemId == reviewItemId)
             .CountAsync();
 
-        public async Task<bool> ReviewExists(int reviewItemId) =>
-            await _context.Reviews.AnyAsync(r => r.Id == reviewItemId);
-
         public async Task<bool> UpdateReview(Review review)
         {
-            var reviewFromDb = _context.Reviews.Include(r => r.Images).Include(r => r.Tags).Single(r => r.Id == review.Id);
+            var reviewFromDb = _context.Reviews.Include(r => r.Images)
+                                .Include(r => r.Tags)
+                                .Single(r => r.Id == review.Id);
             if (reviewFromDb == null)
                 return false;
-            reviewFromDb.Title = review.Title;
-            reviewFromDb.MarkdownText = review.MarkdownText;
-            reviewFromDb.Images = review.Images;
-            reviewFromDb.Grade = review.Grade;
-            reviewFromDb.Tags = review.Tags;
+            UpdateReviewProperties(review);
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<ReviewDetailsDto>> GetUserReviews(string userId) => await
+            _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.CreatorId == userId)
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => MapToDto(r))
+            .ToListAsync();
+
+
+        public async Task<List<ReviewDetailsDto>> GetUserLikedReviews(string userId) => await
+            _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.UsersWhoLiked.Any(u => u.Id == userId))
+            .OrderByDescending(r => r.UsersWhoLiked.Count())
+            .Select(r => MapToDto(r))
+            .ToListAsync();
 
         public async Task<int> UserAlreadyLeftReview(int reviewItemId, string userId)
         {
@@ -145,6 +152,26 @@ namespace ReviewsWebApp.Repositories
             return existingReviewId != 0 ? existingReviewId : 0;
         }
 
-
+        private static ReviewDetailsDto MapToDto(Review review) =>
+            new ReviewDetailsDto
+            {
+                Id = review.Id,
+                Title = review.Title,
+                MarkdownText = review.MarkdownText,
+                Images = review.Images,
+                Grade = review.Grade,
+                CreatedTime = review.CreatedAt,
+                CreatorFirstName = review.ApplicationUser == null ? null : review.ApplicationUser.FirstName,
+                CreatorLastName = review.ApplicationUser == null ? null : review.ApplicationUser.LastName,
+                CreatorId = review.ApplicationUser == null ? null : review.ApplicationUser.Id,
+                ReviewItemNameEn = review.ReviewItem.NameEn,
+                ReviewItemNameRu = review.ReviewItem.NameRu,
+                ReviewItemImageGuid = review.ReviewItem.ImageGuid,
+                ReviewItemId = review.ReviewItem.Id,
+                ReviewItemGroupNameEn = review.ReviewItem.ReviewGroup.NameEn,
+                ReviewRatings = review.RatedReviews,
+                UsersIdWhoLiked = review.UsersWhoLiked.Select(u => u.Id).ToList(),
+                Tags = review.Tags,
+            };
     }
 }

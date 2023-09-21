@@ -50,7 +50,12 @@
         }
     </div>
     <div class="markdown mt-2 limit-text limit-text-small">@Model.MarkdownText</div>
-
+    <div class="mt-2">
+        @foreach (var tag in Model.Tags)
+        {
+            <span class="text-purple fw-bold">@tag.Name</span>
+        }
+    </div>
     <div class="review-author fst-italic mt-2">
         -
         <a asp-action="Details" asp-controller="User" asp-route-id="@Model.CreatorId"> @Model.CreatorFirstName @Model.CreatorLastName</a>
