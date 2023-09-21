@@ -300,5 +300,28 @@ comments-section {
 
 .search-div {
     z-index: 999;
-    
+}
+
+.suggestions {
+    display: none;
+    position: absolute;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+    .suggestions span {
+        display: block;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+        .suggestions span:hover {
+            background-color: #f0f0f0;
+        }
+
+.text-purple {
+    color: purple;
 }

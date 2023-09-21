@@ -131,3 +131,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
 search.start()
 hideHitsOnEmptyInput();
+
+
+// code for tags preview
+const tagsInput = document.getElementById('tags-input');
+if (tagsInput) {
+
+    const suggestionsDiv = document.getElementById('tag-suggestions');
+    const allTags = [...document.querySelectorAll('.tag-list span')];
+    let filteredTags = allTags;
+
+    tagsInput.addEventListener('input', () => {
+        const userInput = tagsInput.value.toLowerCase().trim();
+
+        const lastWord = userInput.split(' ').pop();
+
+        filteredTags = allTags.filter((tag) =>
+            tag.textContent.toLowerCase().includes(lastWord)
+        );
+
+        if (lastWord.length === 0) {
+            suggestionsDiv.style.display = 'none';
+        } else {
+            suggestionsDiv.style.display = 'block';
+            suggestionsDiv.innerHTML = '';
+
+            filteredTags.forEach((tag) => {
+                const suggestion = document.createElement('span');
+                suggestion.textContent = tag.textContent;
+
+                suggestion.addEventListener('click', () => {
+                    const currentValue = tagsInput.value.toLowerCase().trim();
+                    const newValue =
+                        currentValue.substring(0, currentValue.lastIndexOf(' ')) +
+                        ' ' +
+                        tag.textContent + ' ';
+                    tagsInput.value = newValue.trimStart();
+                    suggestionsDiv.style.display = 'none';
+                    tagsInput.focus();
+                });
+
+                suggestionsDiv.appendChild(suggestion);
+            });
+        }
+    });
+
+    tagsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+            const userInput = tagsInput.value.toLowerCase().trim();
+            const lastWord = userInput.split(' ').pop();
+            if (lastWord.length !== 0) {
+                const currentValue = tagsInput.value.toLowerCase().trim();
+                const newValue =
+                    currentValue.substring(0, currentValue.lastIndexOf(' ')) +
+                    ' ' + filteredTags[0].textContent + ' '; 
+                tagsInput.value = newValue;
+                suggestionsDiv.style.display = 'none';
+                tagsInput.focus();
+            }
+        }
+    });
+
+}

@@ -8,7 +8,7 @@ namespace ReviewsWebApp.ViewModels
     public class ReviewFormViewModel
     {
         public ReviewDto Review { get; set; }
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public List<Tag> AllTags { get; set; } = new List<Tag>();
         [ValidateNever]
         public string ContainerLink { get; set; }
         [ValidateNever]

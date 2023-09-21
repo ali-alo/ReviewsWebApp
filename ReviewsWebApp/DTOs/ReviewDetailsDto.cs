@@ -8,6 +8,7 @@ namespace ReviewsWebApp.DTOs
         public string Title { get; set; } = string.Empty;
         public string MarkdownText { get; set; } = string.Empty;
         public List<Image> Images { get; set; } = new List<Image>();
+        public List<Tag> Tags { get; set; }
         public decimal Grade { get; set; }
         public string? CreatorFirstName { get; set; }
         public string? CreatorLastName { get; set; }

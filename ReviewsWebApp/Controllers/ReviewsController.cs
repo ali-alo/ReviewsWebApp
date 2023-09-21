@@ -1,5 +1,4 @@
-﻿using Algolia.Search.Clients;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReviewsWebApp.Areas.Identity;
@@ -16,23 +15,23 @@ namespace ReviewsWebApp.Controllers
     {
         private readonly IImageService _imageService;
         private readonly IReviewRepository _reviewRepository;
-        private readonly ITagService _tagService;
+        private readonly ITagRepository _tagRepository;
         private readonly IReviewItemRepository _reviewItemRepository;
         private readonly IMapper _mapper;
         private readonly ICommentRepository _commentRepository;
         private readonly ISearchService _searchService;
 
-        public ReviewsController(IImageService imageService,IReviewRepository reviewRepository, 
-            ITagService tagService, IReviewItemRepository reviewItemRepository, IMapper mapper,
-            ICommentRepository commentRepository, ISearchService searchService)
+        public ReviewsController(IMapper mapper, IImageService imageService, ISearchService searchService, 
+            IReviewRepository reviewRepository, ITagRepository tagRepository, 
+            IReviewItemRepository reviewItemRepository, ICommentRepository commentRepository)
         {
-            _imageService = imageService;
-            _reviewRepository = reviewRepository;
-            _tagService = tagService;
-            _reviewItemRepository = reviewItemRepository;
             _mapper = mapper;
-            _commentRepository = commentRepository;
+            _imageService = imageService;
             _searchService = searchService;
+            _reviewRepository = reviewRepository;
+            _tagRepository = tagRepository;
+            _reviewItemRepository = reviewItemRepository;
+            _commentRepository = commentRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -57,14 +56,14 @@ namespace ReviewsWebApp.Controllers
 
         private async Task<ReviewFormViewModel> GetFormViewModel(ReviewItem reviewItem)
         {
-            var tags = await GetTags();
+            var tags = await _tagRepository.GetAllTags();
             var containerLink = _imageService.GetContainerLink();
             var reviewsCount = await _reviewRepository.GetReviewsCount(reviewItem.Id);
             var reviewsAverage = await _reviewRepository.GetReviewsAverage(reviewItem.Id);
             var reviewCreateDto = new ReviewDto { ReviewItemId = reviewItem.Id };
             return new ReviewFormViewModel
             {
-                Tags = tags,
+                AllTags = tags,
                 Review = reviewCreateDto,
                 ContainerLink = containerLink,
                 ReviewItem = reviewItem,
@@ -84,23 +83,24 @@ namespace ReviewsWebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create(ReviewFormViewModel reviewCreateViewModel)
+        public async Task<IActionResult> Create(ReviewFormViewModel model)
         {
-            if (!await _reviewItemRepository.ReviewItemExists(reviewCreateViewModel.Review.ReviewItemId))
+            if (!await _reviewItemRepository.ReviewItemExists(model.Review.ReviewItemId))
                 return RedirectToAction("List", "ReviewItem");
             if (!ModelState.IsValid)
             {
-                var viewModel = await GetFormViewModel(reviewCreateViewModel.Review.ReviewItemId);
+                var viewModel = await GetFormViewModel(model.Review.ReviewItemId);
                 if (viewModel == null)
                     return RedirectToAction("List", "ReviewItem");
-                viewModel.Review = reviewCreateViewModel.Review;
+                viewModel.Review = model.Review;
                 return View(viewModel);
             }
 
-            Review review = _mapper.Map<Review>(reviewCreateViewModel.Review);
-            review.Images = await _imageService.UploadImagesToAzure(reviewCreateViewModel.Review.Files);
+            Review review = _mapper.Map<Review>(model.Review);
+            review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
             review.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             review.CreatedAt = DateTime.UtcNow;
+            review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
             await _reviewRepository.CreateReview(review);
 
             await _searchService.AddRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
@@ -122,6 +122,7 @@ namespace ReviewsWebApp.Controllers
                 if (model == null)
                     return BadRequest();
                 model.Review = reviewDto;
+                model.Review.TagsInput = string.Join(" ", model.Review.Tags.Select(t => t.Name));
                 return View(model);
             }
 
@@ -137,15 +138,16 @@ namespace ReviewsWebApp.Controllers
                 return BadRequest(ModelState);
             
             // couldn't upload all images
-            if (!await TryUpdateReviewImages(model.Review, reviewCopy.Images)) 
+            if (!await TryUpdateReviewImages(model.Review, reviewCopy.ImageGuids)) 
             {
                 //delete images that were uploaded
-                await DeleteReviewImagesFromAzure(model.Review.Images);
+                await DeleteReviewImagesFromAzure(model.Review.ImageGuids);
                 ModelState.AddModelError("ImageUploadError", "Couldn't upload image(s)");
                 return BadRequest(ModelState);
             }
 
             Review review = _mapper.Map<Review>(model.Review);
+            review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
             review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
             if (!await _reviewRepository.UpdateReview(review))
             {
@@ -154,7 +156,6 @@ namespace ReviewsWebApp.Controllers
             }
             await _searchService.UpdateRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
             return Ok();
-            
         }
 
         [Authorize]
@@ -166,7 +167,7 @@ namespace ReviewsWebApp.Controllers
                 return BadRequest();
             if (!await _reviewRepository.DeleteReview(id))
                 return BadRequest();
-            await DeleteReviewImagesFromAzure(review.Images);
+            await DeleteReviewImagesFromAzure(review.ImageGuids);
             await _searchService.DeleteRecord(id.ToString());
             return Ok();
         }
@@ -189,14 +190,12 @@ namespace ReviewsWebApp.Controllers
             return View(model);
         }
 
-        private async Task<List<Tag>> GetTags() => await _tagService.GetAllTags();
-
         private async Task<bool> TryUpdateReviewImages(ReviewDto reviewDto, IEnumerable<string> oldImageGuids)
         {
             await DeleteReviewImagesFromAzure(oldImageGuids);
-            reviewDto.Images = await UploadReviewImagesToAzure(reviewDto.Files);
+            reviewDto.ImageGuids = await UploadReviewImagesToAzure(reviewDto.Files);
 
-            if (reviewDto.Images.Any(ig => string.IsNullOrEmpty(ig)))
+            if (reviewDto.ImageGuids.Any(ig => string.IsNullOrEmpty(ig)))
                 return false;
             return true;
         }
@@ -212,7 +211,6 @@ namespace ReviewsWebApp.Controllers
             foreach (var imageFile in imageFiles)
                 imageGuidList.Add(await _imageService.UploadImageToAzure(imageFile));
             return imageGuidList;
-
         }
     }
 }

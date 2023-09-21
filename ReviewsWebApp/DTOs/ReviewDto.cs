@@ -11,11 +11,12 @@ namespace ReviewsWebApp.DTOs
         [MaxLength(40, ErrorMessageResourceType = typeof(Resources.Models.ReviewResource), ErrorMessageResourceName = "TitlePropertyLong")]
         public string Title { get; set; } = string.Empty;
         public string MarkdownText { get; set; } = string.Empty;
-        [Range(1, 10, ErrorMessage = "HEEEY")]
+        [Range(1, 10)]
         public decimal Grade { get; set; }
-        public List<Tag> Tags { get; set; } = new List<Tag>();
+        public string TagsInput { get; set; } = string.Empty;
         public int ReviewItemId { get; set; }
-        public string? CreatorId { get; set; } = "";
-        public List<string> Images { get; set; } = new();
+        public string? CreatorId { get; set; } = string.Empty;
+        public List<string> ImageGuids { get; set; } = new();
+        public List<Tag> Tags { get; set; } = new();
     }
 }

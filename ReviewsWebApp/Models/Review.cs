@@ -22,6 +22,7 @@ namespace ReviewsWebApp.Models
         public List<Comment> Comments { get; set; }
         public List<ApplicationUser> UsersWhoLiked { get; set; }
         public List<UserRatedReview> RatedReviews { get; set; }
+        public List<Tag> Tags { get; set; }
 
     }
 }

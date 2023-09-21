@@ -46,15 +46,24 @@
         }
     </div>
     <div class="review-content markdown mb-2">@Model.ReviewDetails.MarkdownText</div>
-    <div class="w-100 d-flex justify-content-start flex-wrap position-relative my-3 img-container">
-        @foreach (var image in Model.ReviewDetails.Images)
+    <div class="mt-2">
+        @foreach (var tag in Model.ReviewDetails.Tags)
         {
-            <div class="image overflow-hidden position-relative">
-                <img src="@Model.ContainerLink@image.ImageGuid" alt="Imate Image Uploaded By The User" class="w-100 h-100 img-clickable">
-            </div>
+            <span class="text-purple fw-bold">@tag.Name</span>
         }
     </div>
-    <div class="review-author fst-italic">- 
+    @if (Model.ReviewDetails.Images.Any())
+    {
+        <div class="w-100 d-flex justify-content-start flex-wrap position-relative my-3 img-container">
+            @foreach (var image in Model.ReviewDetails.Images)
+            {
+                <div class="image overflow-hidden position-relative">
+                    <img src="@Model.ContainerLink@image.ImageGuid" alt="Imate Image Uploaded By The User" class="w-100 h-100 img-clickable">
+                </div>
+            }
+        </div>
+    }
+    <div class="review-author fst-italic mt-2">- 
         <a asp-action="Details" asp-controller="User" asp-route-id="@Model.ReviewDetails.CreatorId"> @Model.ReviewDetails.CreatorFirstName @Model.ReviewDetails.CreatorLastName</a> 
         <partial name="_ComputedCreatedTime" model="Model.ReviewDetails.CreatedTime" />
         </div>

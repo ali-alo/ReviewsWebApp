@@ -44,13 +44,15 @@ services.Configure<AlgoliaOptions>(config.GetSection("Algolia"));
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddSingleton<IImageService, ImageService>();
 services.AddSingleton<ISearchService, SearchService>();
-services.AddTransient<ITagService, TagService>();
+
+services.AddScoped<ITagRepository, TagRepository>();
 services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
 services.AddScoped<IReviewRepository, ReviewRepository>();
 services.AddScoped<IReviewGroupRepository, ReviewGroupRepository>();
 services.AddScoped<ICommentRepository, CommentRepository>();
 services.AddScoped<IUserRatedReviewRepository, UserRatedReviewRepository>();
 services.AddScoped<IUserRepository, UserRepository>();
+
 services.AddAuthentication()
     .AddGoogle(options =>
     {

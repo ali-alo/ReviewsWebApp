@@ -62,7 +62,8 @@ namespace ReviewsWebApp.Repositories
                     ReviewItemId = r.ReviewItem.Id,
                     ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
                     ReviewRatings = r.RatedReviews,
-                    UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
+                    UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList(),
+                    Tags = r.Tags
                 }).ToListAsync();
         }
 
@@ -84,7 +85,8 @@ namespace ReviewsWebApp.Repositories
                 ReviewItemId = r.ReviewItem.Id,
                 ReviewItemGroupNameEn = r.ReviewItem.ReviewGroup.NameEn,
                 ReviewRatings = r.RatedReviews,
-                UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList()
+                UsersIdWhoLiked = r.UsersWhoLiked.Select(u => u.Id).ToList(),
+                Tags = r.Tags
             }).FirstOrDefaultAsync(r => r.Id == id);
 
         public async Task<ReviewDto?> GetReviewDtoById(int id)
@@ -99,7 +101,8 @@ namespace ReviewsWebApp.Repositories
                         Grade= r.Grade,
                         ReviewItemId = r.ReviewItemId,
                         CreatorId = r.CreatorId,
-                        Images = r.Images.Select(img => img.ImageGuid).ToList(),
+                        ImageGuids = r.Images.Select(img => img.ImageGuid).ToList(),
+                        Tags = r.Tags,
                     })
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
@@ -121,13 +124,14 @@ namespace ReviewsWebApp.Repositories
 
         public async Task<bool> UpdateReview(Review review)
         {
-            var reviewFromDb = _context.Reviews.Include(r => r.Images).Single(r => r.Id == review.Id);
+            var reviewFromDb = _context.Reviews.Include(r => r.Images).Include(r => r.Tags).Single(r => r.Id == review.Id);
             if (reviewFromDb == null)
                 return false;
             reviewFromDb.Title = review.Title;
             reviewFromDb.MarkdownText = review.MarkdownText;
             reviewFromDb.Images = review.Images;
             reviewFromDb.Grade = review.Grade;
+            reviewFromDb.Tags = review.Tags;
             await _context.SaveChangesAsync();
             return true;
         }
