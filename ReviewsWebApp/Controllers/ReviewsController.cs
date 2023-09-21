@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+﻿using Algolia.Search.Clients;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
 using ReviewsWebApp.Areas.Identity;
 using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
@@ -20,10 +20,11 @@ namespace ReviewsWebApp.Controllers
         private readonly IReviewItemRepository _reviewItemRepository;
         private readonly IMapper _mapper;
         private readonly ICommentRepository _commentRepository;
+        private readonly ISearchService _searchService;
 
         public ReviewsController(IImageService imageService,IReviewRepository reviewRepository, 
             ITagService tagService, IReviewItemRepository reviewItemRepository, IMapper mapper,
-            ICommentRepository commentRepository)
+            ICommentRepository commentRepository, ISearchService searchService)
         {
             _imageService = imageService;
             _reviewRepository = reviewRepository;
@@ -31,6 +32,7 @@ namespace ReviewsWebApp.Controllers
             _reviewItemRepository = reviewItemRepository;
             _mapper = mapper;
             _commentRepository = commentRepository;
+            _searchService = searchService;
         }
 
         public async Task<IActionResult> Index()
@@ -101,6 +103,8 @@ namespace ReviewsWebApp.Controllers
             review.CreatedAt = DateTime.UtcNow;
             await _reviewRepository.CreateReview(review);
 
+            await _searchService.AddRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
+
             return RedirectToAction("Index");
         }
 
@@ -148,6 +152,7 @@ namespace ReviewsWebApp.Controllers
                 ModelState.AddModelError("Update Error", "Couldn't update the record in the db");
                 return BadRequest(ModelState);
             }
+            await _searchService.UpdateRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
             return Ok();
             
         }
@@ -162,6 +167,7 @@ namespace ReviewsWebApp.Controllers
             if (!await _reviewRepository.DeleteReview(id))
                 return BadRequest();
             await DeleteReviewImagesFromAzure(review.Images);
+            await _searchService.DeleteRecord(id.ToString());
             return Ok();
         }
 

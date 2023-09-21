@@ -71,3 +71,63 @@ stars.forEach(s => {
 const initialValue = document.querySelector('input[checked="checked"]');
 if (initialValue)
     choiceEl.textContent = initialValue.value;
+
+
+// full-text search ui
+const searchClient = algoliasearch(
+    'K0P413XALK',
+    '6be08c07568cf815111cb4a4e4e63730'
+)
+
+const search = instantsearch({
+    indexName: 'we_review',
+    searchClient,
+    routing: true,
+})
+
+search.addWidgets([
+    instantsearch.widgets.configure({
+        hitsPerPage: 10,
+    }),
+])
+
+search.addWidgets([
+    instantsearch.widgets.searchBox({
+        container: '#search-box',
+        placeholder: 'Search for reviews',
+    }),
+])
+
+search.addWidgets([
+    instantsearch.widgets.hits({
+        container: '#hits',
+        templates: {
+            item: document.getElementById('hit-template').innerHTML,
+            empty: `We didn't find any results for the search <em>"{{query}}"</em>`,
+        },
+    }),
+])
+
+function hideHitsOnEmptyInput() {
+    const inputValue = document.querySelector('#search-box input').value.trim();
+    const hitsContainer = document.querySelector('#hits');
+    if (inputValue.length === 0) {
+        hitsContainer.style.display = 'none';
+    } else {
+        hitsContainer.style.display = 'block';
+        transformMarkdownText();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBoxInput = document.querySelector('#search-box input');
+    searchBoxInput.addEventListener('input', hideHitsOnEmptyInput);
+
+    const resetButton = document.querySelector('button[type="reset"]');
+    resetButton.addEventListener('click', function () {
+        document.querySelector('#hits').style.display = 'none';
+    });
+});
+
+search.start()
+hideHitsOnEmptyInput();

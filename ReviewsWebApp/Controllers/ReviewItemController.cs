@@ -16,14 +16,16 @@ namespace ReviewsWebApp.Controllers
         private readonly IImageService _imageService;
         private readonly IMapper _mapper;
         private readonly IReviewGroupRepository _reviewGroupRepository;
+        private readonly ISearchService _searchService;
 
         public ReviewItemController(IReviewItemRepository repository, IImageService imageService,
-            IMapper mapper, IReviewGroupRepository reviewGroupRepository)
+            IMapper mapper, IReviewGroupRepository reviewGroupRepository, ISearchService searchService)
         {
             _repository = repository;
             _imageService = imageService;
             _mapper = mapper;
             _reviewGroupRepository = reviewGroupRepository;
+            _searchService = searchService;
         }
 
         public async Task<IActionResult> List()
@@ -82,12 +84,12 @@ namespace ReviewsWebApp.Controllers
 
             if (!await TryUpdateItemImage(reviewItemDto, reviewItemCopy.ImageGuid))
             {
-                ModelState.AddModelError("Image", "Couldn't upload an image");
+                ModelState.AddModelError("ImageError", "Couldn't upload an image");
                 return View(ModelState);
             }
             
-            var review = _mapper.Map<ReviewItem>(reviewItemDto);
-            await _repository.UpdateReviewItem(review);
+            var reviewItem = _mapper.Map<ReviewItem>(reviewItemDto);
+            await _repository.UpdateReviewItem(reviewItem);
             return Ok();
         }
 
@@ -95,11 +97,13 @@ namespace ReviewsWebApp.Controllers
         [HttpDelete]
         public async Task<ActionResult> Delete(int id)
         {
-            var review  = await _repository.GetReviewItemById(id);
-            if (review is not null)
+            var reviewItem  = await _repository.GetReviewItemById(id);
+            if (reviewItem is not null)
             {
                 await _repository.DeleteReviewItem(id);
-                await DeleteImageFromAzure(review.ImageGuid);
+                await DeleteImageFromAzure(reviewItem.ImageGuid);
+                foreach (var review in reviewItem.Reviews)
+                    await _searchService.DeleteRecord(review.Id.ToString());
                 return Ok();
             }
             return BadRequest();

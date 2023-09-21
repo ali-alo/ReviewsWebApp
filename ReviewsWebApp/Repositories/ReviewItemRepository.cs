@@ -37,7 +37,11 @@ namespace ReviewsWebApp.Repositories
 
         public async Task<ReviewItem?> GetReviewItemById(int id)
         {
-            return await _context.ReviewsItems.Include(r => r.ReviewGroup).FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.ReviewsItems
+                .Include(r => r.ReviewGroup)
+                .Include(r => r.Reviews)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<ReviewDetailsDto>> GetReviewItemReviews(int id)

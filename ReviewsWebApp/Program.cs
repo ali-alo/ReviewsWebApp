@@ -39,9 +39,11 @@ services.Configure<RequestLocalizationOptions>(options =>
 
 });
 services.Configure<AzureOptions>(config.GetSection("Azure"));
+services.Configure<AlgoliaOptions>(config.GetSection("Algolia"));
 
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-services.AddTransient<IImageService, ImageService>();
+services.AddSingleton<IImageService, ImageService>();
+services.AddSingleton<ISearchService, SearchService>();
 services.AddTransient<ITagService, TagService>();
 services.AddScoped<IReviewItemRepository, ReviewItemRepository>();
 services.AddScoped<IReviewRepository, ReviewRepository>();
