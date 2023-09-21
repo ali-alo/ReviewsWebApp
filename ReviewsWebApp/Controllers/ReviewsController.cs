@@ -100,7 +100,8 @@ namespace ReviewsWebApp.Controllers
             review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
             review.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             review.CreatedAt = DateTime.UtcNow;
-            review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
+            if (model.Review.TagsInput != null)
+                review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
             await _reviewRepository.CreateReview(review);
 
             await _searchService.AddRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
@@ -147,7 +148,8 @@ namespace ReviewsWebApp.Controllers
             }
 
             Review review = _mapper.Map<Review>(model.Review);
-            review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
+            if (model.Review.TagsInput != null)
+                review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
             review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
             if (!await _reviewRepository.UpdateReview(review))
             {
@@ -155,6 +157,7 @@ namespace ReviewsWebApp.Controllers
                 return BadRequest(ModelState);
             }
             await _searchService.UpdateRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
+            await _tagRepository.DeleteTagsWithNoReviews(); // if after edit there are tags with no reviews
             return Ok();
         }
 
@@ -169,6 +172,7 @@ namespace ReviewsWebApp.Controllers
                 return BadRequest();
             await DeleteReviewImagesFromAzure(review.ImageGuids);
             await _searchService.DeleteRecord(id.ToString());
+            await _tagRepository.DeleteTagsWithNoReviews();
             return Ok();
         }
 
@@ -188,6 +192,13 @@ namespace ReviewsWebApp.Controllers
                 && r.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
             model.CommentForm.Grade = userRatedReview == null ? 0 : userRatedReview.Rating;
             return View(model);
+        }
+
+        public async Task<ActionResult> SearchByTag(string tagName)
+        {
+            var reviews =  await _reviewRepository.GetReviewsByTag(tagName);
+            var containerLink = _imageService.GetContainerLink();
+            return View("Index", new ReviewsIndexViewModel { Reviews = reviews, ContainerLink = containerLink });
         }
 
         private async Task<bool> TryUpdateReviewImages(ReviewDto reviewDto, IEnumerable<string> oldImageGuids)

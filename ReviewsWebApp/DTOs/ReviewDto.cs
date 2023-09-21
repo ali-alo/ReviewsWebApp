@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using ReviewsWebApp.Models;
 
 namespace ReviewsWebApp.DTOs
@@ -13,7 +14,7 @@ namespace ReviewsWebApp.DTOs
         public string MarkdownText { get; set; } = string.Empty;
         [Range(1, 10)]
         public decimal Grade { get; set; }
-        public string TagsInput { get; set; } = string.Empty;
+        public string? TagsInput { get; set; }
         public int ReviewItemId { get; set; }
         public string? CreatorId { get; set; } = string.Empty;
         public List<string> ImageGuids { get; set; } = new();

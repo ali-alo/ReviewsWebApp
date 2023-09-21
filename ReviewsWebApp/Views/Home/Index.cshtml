@@ -6,15 +6,17 @@
 }
 
 <div class="mt-2">
-    @foreach (var tag in Model.Tags)
+    <h3 class="mb-3">Tags</h3>
+    @for (int i = 1; i <= Model.Tags.Count(); i++)
     {
-        <span>@tag.Name</span>
+        string tagName = Model.Tags[i - 1].Name;
+        <a asp-action="SearchByTag" asp-controller="Reviews" asp-route-tagName="@tagName"><span class="ms-2 fs-6 badge  rounded-pill @(i % 2 == 0 ? "bg-secondary" : "bg-dark")">@tagName</span></a>
     }
 </div>
 
 <div class="mt-4 row">
     <div class="col-6">
-        <h3>Most popular reviews</h3>
+        <h3 class="mb-3">Most popular reviews</h3>
         @foreach (var review in Model.MostLikedReviews)
         {
             <partial name="_ReviewPeak" model="review" />
@@ -22,7 +24,7 @@
     </div>
    
     <div class="col-6">
-        <h3>Latest reviews</h3>
+        <h3 class="mb-3">Latest reviews</h3>
         @foreach (var review in Model.LatestReviews)
         {
             <partial name="_ReviewPeak" model="review" />

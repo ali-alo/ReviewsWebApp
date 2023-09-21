@@ -19,5 +19,6 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task<List<ReviewDetailsDto>> GetReviewItemReviews(int reviewItemId);
         Task<List<ReviewDetailsDto>> GetUserReviews(string userId);
         Task<List<ReviewDetailsDto>> GetUserLikedReviews(string userId);
+        Task<List<ReviewDetailsDto>> GetReviewsByTag(string tagName);
     }
 }

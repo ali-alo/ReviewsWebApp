@@ -42,15 +42,6 @@ namespace ReviewsWebApp.Repositories
             return false;
         }
 
-        private void UpdateReviewProperties(Review review)
-        {
-            review.Title = review.Title;
-            review.MarkdownText = review.MarkdownText;
-            review.Images = review.Images;
-            review.Grade = review.Grade;
-            review.Tags = review.Tags;
-        }
-
         public async Task<List<ReviewDetailsDto>> GetMostPopularReviews(int takeAmount = 3, int skipAmount = 0) => await 
             _context.Reviews
             .IncludeCommon()
@@ -121,7 +112,7 @@ namespace ReviewsWebApp.Repositories
                                 .Single(r => r.Id == review.Id);
             if (reviewFromDb == null)
                 return false;
-            UpdateReviewProperties(review);
+            UpdateReviewProperties(reviewFromDb, review);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -143,6 +134,15 @@ namespace ReviewsWebApp.Repositories
             .Select(r => MapToDto(r))
             .ToListAsync();
 
+        public async Task<List<ReviewDetailsDto>> GetReviewsByTag(string tagName) => await
+            _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.Tags.Any(t => t.Name == tagName.Trim().ToLower()))
+            .OrderByDescending(r => r.UsersWhoLiked.Count())
+            .Select(r => MapToDto(r))
+            .ToListAsync();
+
+
         public async Task<int> UserAlreadyLeftReview(int reviewItemId, string userId)
         {
             var existingReviewId = await _context.Reviews
@@ -150,6 +150,15 @@ namespace ReviewsWebApp.Repositories
                 .Select(r => r.Id)
                 .FirstOrDefaultAsync();
             return existingReviewId != 0 ? existingReviewId : 0;
+        }
+
+        private void UpdateReviewProperties(Review reviewFromDb, Review reviewUpdated)
+        {
+            reviewFromDb.Title = reviewUpdated.Title;
+            reviewFromDb.MarkdownText = reviewUpdated.MarkdownText;
+            reviewFromDb.Images = reviewUpdated.Images;
+            reviewFromDb.Grade = reviewUpdated.Grade;
+            reviewFromDb.Tags = reviewUpdated.Tags;
         }
 
         private static ReviewDetailsDto MapToDto(Review review) =>

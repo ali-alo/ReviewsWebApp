@@ -6,5 +6,6 @@ namespace ReviewsWebApp.Repositories.Interfaces
     {
         Task<List<Tag>> GetAllTags();
         Task<List<Tag>> GetTagsFromInput(string input);
+        Task DeleteTagsWithNoReviews();
     }
 }

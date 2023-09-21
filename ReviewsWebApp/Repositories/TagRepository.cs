@@ -49,5 +49,15 @@ namespace ReviewsWebApp.Repositories
             Regex hashtagRegex = new Regex(_tagRegex);
             return hashtagRegex.Matches(input);
         }
+
+        public async Task DeleteTagsWithNoReviews()
+        {
+            var tagsToDelete = _context.Tags
+                .Where(tag => !tag.Reviews.Any())
+                .ToList();
+            foreach (var tag in tagsToDelete)
+                _context.Tags.Remove(tag);
+            await _context.SaveChangesAsync();
+        }
     }
 }
