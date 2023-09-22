@@ -65,17 +65,11 @@
                         </div>
                         <div class="d-flex align-items-center">
                             <a asp-action="Details" asp-controller="Reviews" asp-route-id="@review.Id" class="btn btn-primary">Rate review</a>
-                                @if (review.UsersIdWhoLiked.Contains(userId))
-                                {
-                                    <a class="text-dark text-decoration-none ms-auto hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })" title="Remove Like">
-                                        <i class="bi bi-heart-fill text-danger fs-3"></i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a class="text-dark text-decoration-none ms-auto hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = review.Id, returnUrl = $"/Reviews" })" title="Like">
-                                        <i class="bi bi-heart-fill fs-3 "></i>
-                                    </a>
+                            @{
+                                bool userLikedReview = review.UsersIdWhoLiked.Contains(userId);
+                                <a class="text-dark text-decoration-none ms-auto hover-increase d-inline-block" href="@Url.Action("ToggleReviewLike", "User", new { id = review.Id, returnUrl = $"/Reviews" })" title="@(userLikedReview ? "Remove Like" : "Like")">
+                                    <i class="bi bi-heart-fill fs-3 @(userLikedReview ? "text-danger": "")"></i>
+                                </a>
                                 }
                             <span class="ms-2 fs-5">@review.UsersIdWhoLiked.Count()</span>
                             @if (CanEditReview(review))

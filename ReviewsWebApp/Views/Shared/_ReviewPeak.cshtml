@@ -19,16 +19,10 @@
                     <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@Model.Id" class="me-3 rotate-15 d-inline-block"><i class="bi bi-pencil text-danger"></i></a>
                 }
                 
-                @if (Model.UsersIdWhoLiked.Contains(userId))
-                {
-                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Remove Like">
-                        <i class="bi bi-heart-fill text-danger"></i>
-                    </a>
-                }
-                else
-                {
-                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="Like">
-                        <i class="bi bi-heart-fill"></i>
+                @{
+                    bool userLikedReview = Model.UsersIdWhoLiked.Contains(userId);
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("ToggleReviewLike", "User", new { id = Model.Id, returnUrl = $"/User/Details/{userId}" })" title="@(userLikedReview ? "Remove Like" : "Like")">
+                        <i class="bi bi-heart-fill @(userLikedReview ? "text-danger" : "")"></i>
                     </a>
                 }
                 <span class="ms-2">@Model.UsersIdWhoLiked.Count()</span>

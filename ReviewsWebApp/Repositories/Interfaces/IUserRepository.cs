@@ -7,8 +7,7 @@ namespace ReviewsWebApp.Repositories.Interfaces
     {
         Task MakeAdmin(string userId);
         Task RemoveAdminRights(string userId);
-        Task<bool> LikeReview(string userId, int reviewId);
-        Task<bool> DislikeReview(string userId, int reviewId);
+        Task<bool> ToggleReviewLike(string userId, int reviewId);
         Task BlockUser(string userId);
         Task UnblockUser(string userId);
         Task<ApplicationUser?> GetUserWithLikesById(string userId);

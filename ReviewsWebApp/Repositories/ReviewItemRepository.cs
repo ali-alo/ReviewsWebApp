@@ -51,7 +51,7 @@ namespace ReviewsWebApp.Repositories
 
         public async Task UpdateReviewItem(ReviewItem item)
         {
-            var reviewItem = await GetReviewItemById(item.Id);
+            var reviewItem = await GetTrackedReviewItemById(item.Id);
             if (reviewItem == null)
                 return;
             reviewItem.NameEn = item.NameEn;
@@ -60,6 +60,14 @@ namespace ReviewsWebApp.Repositories
             reviewItem.DescriptionRu = item.DescriptionRu;
             reviewItem.ImageGuid = item.ImageGuid;
             await _context.SaveChangesAsync();
+        }
+
+        private async Task<ReviewItem?> GetTrackedReviewItemById(int id)
+        {
+            return await _context.ReviewsItems
+                .Include(r => r.ReviewGroup)
+                .Include(r => r.Reviews)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }

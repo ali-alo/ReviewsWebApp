@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReviewsWebApp.Areas.Identity;
 using ReviewsWebApp.DTOs;
 using ReviewsWebApp.Models;
 using ReviewsWebApp.Repositories.Interfaces;
+using System.Drawing.Text;
 using System.Security.Claims;
 
 namespace ReviewsWebApp.Controllers
@@ -12,15 +14,13 @@ namespace ReviewsWebApp.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ICommentRepository _commentRepository;
-        private readonly IReviewRepository _reviewRepository;
         private readonly IUserRatedReviewRepository _userRatedReviewRepository;
 
         public CommentController(IMapper mapper, ICommentRepository commentRepository,
-            IReviewRepository reviewRepository, IUserRatedReviewRepository userRatedReviewRepository)
+            IUserRatedReviewRepository userRatedReviewRepository)
         {
             _mapper = mapper;
             _commentRepository = commentRepository;
-            _reviewRepository = reviewRepository;
             _userRatedReviewRepository = userRatedReviewRepository;
         }
 
@@ -38,6 +38,25 @@ namespace ReviewsWebApp.Controllers
             await RateReview(commentDto);
             return RedirectToAction("Details", "Reviews", new { id = commentDto.ReviewId });
         }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var comment = await _commentRepository.GetComment(id);
+            if (comment == null)
+                return NotFound();
+            if (!HasDeleteRights(comment.UserId))
+                return Unauthorized();
+            if (await _commentRepository.DeleteComment(id))
+                return Ok();
+            return BadRequest();
+
+        }
+
+        private bool HasDeleteRights(string userId) =>
+            User.FindFirstValue(ClaimTypes.NameIdentifier) == userId
+                || User.IsInRole(ApplicationRoleTypes.Admin);
 
         private async Task RateReview(CommentFormDto commentDto)
         {

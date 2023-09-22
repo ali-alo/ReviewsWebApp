@@ -19,17 +19,25 @@ namespace ReviewsWebApp.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public Task DeleteComment(int reviewId, int commentId)
+        public async Task<bool> DeleteComment(int commentId)
         {
-            throw new NotImplementedException();
+            var comment = await GetComment(commentId);
+            if (comment == null)
+                return false;    
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return true;
         }
+
+        public async Task<Comment?> GetComment(int commentId) => 
+            await _context.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
 
         public async Task<List<Comment>> GetReviewComments(int reviewId) =>
-            await _context.Comments.Include(c => c.User).Where(c => c.ReviewId == reviewId).ToListAsync();
+            await _context.Comments
+            .Include(c => c.User)
+            .OrderByDescending(c => c.CreatedAt)
+            .Where(c => c.ReviewId == reviewId)
+            .ToListAsync();
 
-        public Task UpdateComment(Comment comment)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

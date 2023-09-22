@@ -4,9 +4,10 @@
 
 @{
     string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool isAdminRole = User.IsInRole(ApplicationRoleTypes.Admin);
     bool CanEditReview() =>
         Model.ReviewDetails.CreatorId is not null && Model.ReviewDetails.CreatorId == userId
-        || User.IsInRole(ApplicationRoleTypes.Admin);
+        || isAdminRole;
 }
 
 <partial name="_ReviewItemSummary" model="new ReviewItemSummaryViewModel(Model.ContainerLink, Model.ReviewsAverage, Model.ReviewsCount, Model.ReviewItem)" />
@@ -24,13 +25,13 @@
                 }
                 @if (Model.ReviewDetails.UsersIdWhoLiked.Contains(userId))
                 {
-                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("DislikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Remove Like">
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("ToggleReviewLike", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Remove Like">
                         <i class="bi bi-heart-fill text-danger"></i>
                     </a>
                 }
                 else
                 {
-                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("LikeReview", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Like">
+                    <a class="text-dark text-decoration-none hover-increase d-inline-block" href="@Url.Action("ToggleReviewLike", "User", new { id = Model.ReviewDetails.Id, returnUrl = $"/Reviews/Details/{Model.ReviewDetails.Id}" })" title="Like">
                         <i class="bi bi-heart-fill"></i>
                     </a>
                 }
@@ -102,15 +103,47 @@
         <h3>Other comments (@Model.Comments.Count())</h3>
         @foreach (var comment in Model.Comments)
         {
-            <div class="comment mt-3 p-3">
-                <div class="comment-content">
-                    @comment.Content
+            <div class="comment mt-3 p-3 d-flex align-items-center">
+                <div class="d-flex flex-column">
+                    <div class="comment-content">
+                        @comment.Content
+                    </div>
+                    <div class="comment-author mt-1">
+                        -
+                        <a asp-action="Details" asp-controller="User" asp-route-id="@comment.UserId">@comment.User.FirstName @comment.User.LastName</a>
+                        <partial name="_ComputedCreatedTime" model="comment.CreatedAt" />
+                    </div>
                 </div>
-                <div class="comment-author mt-1">
-                    <a asp-action="Details" asp-controller="User" asp-route-id="@comment.UserId">- @comment.User.FirstName @comment.User.LastName</a>
-                    <partial name="_ComputedCreatedTime" model="comment.CreatedAt" />
-                </div>
+                @if (userId == comment.UserId || isAdminRole)
+                {
+                    <span class="ms-auto cursor-pointer delete-comment" data-comment-id="@comment.Id">
+                        <i class="bi bi-trash-fill text-danger fs-4"></i>
+                    </span>
+                }
             </div>
         }
     }
 </div>
+
+
+<script>
+    document.querySelectorAll('.delete-comment').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const commentId = this.getAttribute('data-comment-id');
+
+            fetch(`/Comment/Delete/${commentId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        this.closest('.comment').remove();
+                    } else {
+                        console.error('Failed to delete the comment. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>

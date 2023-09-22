@@ -16,10 +16,6 @@ namespace ReviewsWebApp.Repositories
 
         public async Task AddRatingToReview(UserRatedReview userRatedReview)
         {
-            //var review = await _context.Reviews.Include(r => r.RatedReviews).FirstOrDefaultAsync(r => r.Id == userRatedReview.ReviewId);
-            //if (review == null)
-            //    return;
-            //review.RatedReviews.Add(userRatedReview)
             _context.UserRatedReviews.Add(userRatedReview);
             await _context.SaveChangesAsync();
         }

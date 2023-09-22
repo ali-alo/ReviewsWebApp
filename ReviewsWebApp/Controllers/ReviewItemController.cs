@@ -54,10 +54,15 @@ namespace ReviewsWebApp.Controllers
             string imageGuid = await UploadImageToAzure(viewModel.Review.ImageFile);
             if (string.IsNullOrEmpty(imageGuid))
                 return await ResubmitForm(viewModel);
-            var reviewItem = _mapper.Map<ReviewItem>(viewModel.Review);
+            await AddDtoToDb(viewModel.Review, imageGuid);
+            return RedirectToAction("List");
+        }
+
+        private async Task AddDtoToDb(ReviewItemCreateDto dto, string imageGuid)
+        {
+            var reviewItem = _mapper.Map<ReviewItem>(dto);
             reviewItem.ImageGuid = imageGuid;
             await _repository.CreateReviewItem(reviewItem);
-            return RedirectToAction("List");
         }
 
         private async Task<ActionResult> ResubmitForm(ReviewItemCreateViewModel viewModel)
@@ -90,7 +95,7 @@ namespace ReviewsWebApp.Controllers
                 ModelState.AddModelError("ImageError", "Couldn't upload an image");
                 return View(ModelState);
             }
-            
+
             var reviewItem = _mapper.Map<ReviewItem>(reviewItemDto);
             await _repository.UpdateReviewItem(reviewItem);
             return Ok();

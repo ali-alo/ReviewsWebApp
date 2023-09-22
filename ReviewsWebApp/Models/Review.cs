@@ -6,7 +6,6 @@ namespace ReviewsWebApp.Models
     public class Review
     {
         public int Id { get; set; }
-        // TODO: Add error message reading from .resx files
         [MaxLength(40, ErrorMessageResourceName = "TitlePropertyLong")]
         public string Title { get; set; } = string.Empty;
         public string MarkdownText { get; set; } = string.Empty;

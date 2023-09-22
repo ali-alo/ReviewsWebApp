@@ -88,7 +88,7 @@ namespace ReviewsWebApp.Repositories
             .Take(takeAmount)
             .ToListAsync();
 
-        public async Task<List<ReviewDetailsDto>> GetMoreRecentReviews(int takeAmount = 3, int skipAmount = 0) => await 
+        public async Task<List<ReviewDetailsDto>> GetMostRecentReviews(int takeAmount = 3, int skipAmount = 0) => await 
             _context.Reviews
             .IncludeCommon()
             .OrderByDescending(r => r.CreatedAt)

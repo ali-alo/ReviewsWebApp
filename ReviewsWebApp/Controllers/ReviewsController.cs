@@ -84,6 +84,15 @@ namespace ReviewsWebApp.Controllers
             return await GetFormViewModel(reviewItem);
         }
 
+        private async Task<IActionResult> FormInvalidResubmit(ReviewDto reviewDto)
+        {
+            var viewModel = await GetFormViewModel(reviewDto.ReviewItemId);
+            if (viewModel == null)
+                return RedirectToAction("List", "ReviewItem");
+            viewModel.Review = reviewDto;
+            return View(viewModel);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -92,25 +101,23 @@ namespace ReviewsWebApp.Controllers
             if (!await _reviewItemRepository.ReviewItemExists(model.Review.ReviewItemId))
                 return RedirectToAction("List", "ReviewItem");
             if (!ModelState.IsValid)
-            {
-                var viewModel = await GetFormViewModel(model.Review.ReviewItemId);
-                if (viewModel == null)
-                    return RedirectToAction("List", "ReviewItem");
-                viewModel.Review = model.Review;
-                return View(viewModel);
-            }
-
-            Review review = _mapper.Map<Review>(model.Review);
-            review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
-            review.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            review.CreatedAt = DateTime.UtcNow;
-            if (model.Review.TagsInput != null)
-                review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
+                return await FormInvalidResubmit(model.Review);
+            Review review = await MapToEntity(model.Review);
             await _reviewRepository.CreateReview(review);
-
             await _searchService.AddRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
-
             return RedirectToAction("Index");
+        }
+
+        private async Task<Review> MapToEntity(ReviewDto reviewDto, bool createMapping = true)
+        {
+            Review review = _mapper.Map<Review>(reviewDto);
+            review.Images = await _imageService.UploadImagesToAzure(reviewDto.Files);
+            if (createMapping)  // when admin changes user's review, review must not be transferred to the admin
+                review.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            review.CreatedAt = DateTime.UtcNow;
+            if (reviewDto.TagsInput != null)
+                review.Tags = await _tagRepository.GetTagsFromInput(reviewDto.TagsInput);
+            return review;
         }
 
         [Authorize]
@@ -120,49 +127,64 @@ namespace ReviewsWebApp.Controllers
             if (reviewDto == null)
                 return NotFound();
 
-            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == reviewDto.CreatorId
-                || User.IsInRole(ApplicationRoleTypes.Admin))
-            {
-                var model = await GetFormViewModel(reviewDto.ReviewItemId);
-                if (model == null)
-                    return BadRequest();
-                model.Review = reviewDto;
-                model.Review.TagsInput = string.Join(" ", model.Review.Tags.Select(t => t.Name));
-                return View(model);
-            }
+            if (!IsOwnerOrAdmin(reviewDto.CreatorId))
+                return Unauthorized();
 
-            return Unauthorized();
+            var model = await GetFormViewModel(reviewDto.ReviewItemId);
+            if (model == null)
+                return BadRequest();
+            model.Review = reviewDto;
+            model.Review.TagsInput = string.Join(" ", model.Review.Tags.Select(t => t.Name));
+            return View(model);
+        }
+
+        private bool IsOwnerOrAdmin(string? creatorId)
+        {
+            if (User.IsInRole(ApplicationRoleTypes.Admin))  // admins can change any review
+                return true;
+            if (creatorId == null)  // reviews of delete users only admins can change
+                return false;
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == creatorId)  // user's review
+                return true;
+            return false;  // not user's review and doesn't have admin rights
         }
 
         [Authorize]
         [HttpPut] 
         public async Task<IActionResult> Edit(ReviewFormViewModel model)
         {
+            if (!IsOwnerOrAdmin(model.Review.CreatorId))
+                return Unauthorized();
+
             var reviewCopy = await _reviewRepository.GetReviewDtoById(model.Review.Id);
             if (reviewCopy == null || !ModelState.IsValid)
                 return BadRequest(ModelState);
             
             // couldn't upload all images
             if (!await TryUpdateReviewImages(model.Review, reviewCopy.ImageGuids)) 
-            {
-                //delete images that were uploaded
-                await DeleteReviewImagesFromAzure(model.Review.ImageGuids);
-                ModelState.AddModelError("ImageUploadError", "Couldn't upload image(s)");
-                return BadRequest(ModelState);
-            }
+                return await ImageErrorResubmit(model.Review.ImageGuids);
 
-            Review review = _mapper.Map<Review>(model.Review);
-            if (model.Review.TagsInput != null)
-                review.Tags = await _tagRepository.GetTagsFromInput(model.Review.TagsInput);
-            review.Images = await _imageService.UploadImagesToAzure(model.Review.Files);
+            Review review = await MapToEntity(model.Review, false);
             if (!await _reviewRepository.UpdateReview(review))
-            {
-                ModelState.AddModelError("Update Error", "Couldn't update the record in the db");
-                return BadRequest(ModelState);
-            }
+                return ReviewUploadError();
+
             await _searchService.UpdateRecord(new SearchDto(review.Id, review.Title, review.MarkdownText));
             await _tagRepository.DeleteTagsWithNoReviews(); // if after edit there are tags with no reviews
             return Ok();
+        }
+
+        private IActionResult ReviewUploadError()
+        {
+            ModelState.AddModelError("Update Error", "Couldn't update the record in the db");
+            return BadRequest(ModelState);
+        }
+
+        private async Task<IActionResult> ImageErrorResubmit(List<string> imageGuids)
+        {
+            //delete images that were uploaded
+            await DeleteReviewImagesFromAzure(imageGuids);
+            ModelState.AddModelError("ImageUploadError", "Couldn't upload image(s)");
+            return BadRequest(ModelState);
         }
 
         [Authorize]
@@ -172,8 +194,13 @@ namespace ReviewsWebApp.Controllers
             var review = await _reviewRepository.GetReviewDtoById(id);
             if (review == null)
                 return BadRequest();
+
+            if (!IsOwnerOrAdmin(review.CreatorId))
+                return Unauthorized();
+
             if (!await _reviewRepository.DeleteReview(id))
                 return BadRequest();
+
             await DeleteReviewImagesFromAzure(review.ImageGuids);
             await _searchService.DeleteRecord(id.ToString());
             await _tagRepository.DeleteTagsWithNoReviews();
@@ -188,14 +215,20 @@ namespace ReviewsWebApp.Controllers
             var formModel = await GetFormViewModel(reviewDto.ReviewItemId);
             if (formModel == null)
                 return BadRequest();
-            var model = _mapper.Map<ReviewDetailsViewModel>(formModel);
-            model.ReviewDetails = reviewDto;
-            model.Comments = await _commentRepository.GetReviewComments(id);
-            model.CommentForm.ReviewId = id;
-            var userRatedReview = reviewDto.ReviewRatings.FirstOrDefault(r => r.ReviewId == id
-                && r.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
-            model.CommentForm.Grade = userRatedReview == null ? 0 : userRatedReview.Rating;
+            var model = await LoadReviewDetailsViewModel(formModel, reviewDto);
             return View(model);
+        }
+
+        private async Task<ReviewDetailsViewModel> LoadReviewDetailsViewModel(ReviewFormViewModel formModel, ReviewDetailsDto reviewDto)
+        {
+            var viewModel = _mapper.Map<ReviewDetailsViewModel>(formModel);
+            viewModel.ReviewDetails = reviewDto;
+            viewModel.Comments = await _commentRepository.GetReviewComments(reviewDto.Id);
+            viewModel.CommentForm.ReviewId = reviewDto.Id;
+            var userRatedReview = reviewDto.ReviewRatings.FirstOrDefault(r => r.ReviewId == reviewDto.Id
+                && r.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
+            viewModel.CommentForm.Grade = userRatedReview == null ? 0 : userRatedReview.Rating;
+            return viewModel;
         }
 
         private async Task<bool> TryUpdateReviewImages(ReviewDto reviewDto, IEnumerable<string> oldImageGuids)

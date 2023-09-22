@@ -20,7 +20,7 @@ namespace ReviewsWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var latestReviews = await _reviewRepository.GetMoreRecentReviews();
+            var latestReviews = await _reviewRepository.GetMostRecentReviews();
             var mostPopularReview = await _reviewRepository.GetMostPopularReviews();
             var tags = await _tagRepository.GetAllTags();
             var model = new HomeViewModel(latestReviews, mostPopularReview, tags);

@@ -18,7 +18,7 @@ namespace ReviewsWebApp.Repositories.Interfaces
         Task<decimal> GetReviewsAverage(int reviewItemId);
         Task<int> UserAlreadyLeftReview(int reviewItemId, string userId);
         Task<List<ReviewDetailsDto>> GetMostPopularReviews(int takeAmount = 3, int skipAmount = 0);
-        Task<List<ReviewDetailsDto>> GetMoreRecentReviews(int takeAmount = 3, int skipAmount = 0);
+        Task<List<ReviewDetailsDto>> GetMostRecentReviews(int takeAmount = 3, int skipAmount = 0);
         Task<List<ReviewDetailsDto>> GetReviewItemReviews(int reviewItemId);
         Task<List<ReviewDetailsDto>> GetUserReviews(string userId);
         Task<List<ReviewDetailsDto>> GetUserLikedReviews(string userId);

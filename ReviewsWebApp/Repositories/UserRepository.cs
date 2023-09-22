@@ -43,26 +43,18 @@ namespace ReviewsWebApp.Repositories
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task<bool> DislikeReview(string userId, int reviewId)
+        public async Task<bool> ToggleReviewLike(string userId, int reviewId)
         {
             var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId);
             var user = await GetUserWithLikesById(userId);
-            if (review == null || user == null || !user.LikedReviews.Contains(review))
+            if (review == null || user == null)
                 return false;
-            user.LikedReviews.Remove(review);
+            if (user.LikedReviews.Contains(review))
+                user.LikedReviews.Remove(review);
+            else
+                user.LikedReviews.Add(review);
             await _context.SaveChangesAsync();
             return true;
-        }
-        public async Task<bool> LikeReview(string userId, int reviewId)
-        {
-            var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId);
-            var user = await GetUserWithLikesById(userId);
-            if (review == null || user == null || user.LikedReviews.Contains(review))
-                return false;
-            user.LikedReviews.Add(review);
-            await _context.SaveChangesAsync();
-            return true;
-
         }
 
         public async Task MakeAdmin(string userId)
@@ -72,7 +64,6 @@ namespace ReviewsWebApp.Repositories
                 return;
             if (await _roleManager.RoleExistsAsync(ApplicationRoleTypes.Admin))
                 await _userManager.AddToRoleAsync(user, ApplicationRoleTypes.Admin);
-
         }
 
         public async Task RemoveAdminRights(string userId)
