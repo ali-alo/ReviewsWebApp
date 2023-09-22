@@ -1,23 +1,24 @@
-﻿@model DateTime
+﻿@inject IViewLocalizer _localizer
+@model DateTime
 
 @{
     var result = DateTime.UtcNow - Model;
     if (result.TotalDays >= 7)
     {
         var totalWeeks = result.TotalDays / 7.0;
-        <span>@((int)Math.Floor(totalWeeks)) week(s) ago</span>
+        <span>@((int)Math.Floor(totalWeeks)) @_localizer.GetString("WeeksAgo")</span>
     }
     else if (result.TotalDays >= 1)
     {
-        <span>@((int)Math.Floor(result.TotalDays)) days(s) ago</span>
+        <span>@((int)Math.Floor(result.TotalDays)) @_localizer.GetString("DaysAgo")</span>
     }
     else if (result.TotalHours >= 1)
     {
-        <span>@((int)Math.Floor(result.TotalHours)) hour(s) ago</span>
+        <span>@((int)Math.Floor(result.TotalHours)) @_localizer.GetString("HoursAgo")</span>
     }
     else
     {
-        <span>Less than an hour ago</span>
+        <span>@_localizer.GetString("LessThanOneHourAgo")</span>
     }
 }
 

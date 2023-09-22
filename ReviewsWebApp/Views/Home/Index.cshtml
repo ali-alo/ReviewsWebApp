@@ -1,4 +1,4 @@
-﻿@inject IViewLocalizer _localizer;
+﻿@inject IViewLocalizer _localizer
 @model HomeViewModel
 
 @{
@@ -6,7 +6,7 @@
 }
 
 <div class="mt-2">
-    <h3 class="mb-3">Tags</h3>
+    <h3 class="mb-3">@_localizer.GetString("Tags")</h3>
     @for (int i = 1; i <= Model.Tags.Count(); i++)
     {
         string tagName = Model.Tags[i - 1].Name;
@@ -16,7 +16,7 @@
 
 <div class="mt-4 row">
     <div class="col-6">
-        <h3 class="mb-3">Most popular reviews</h3>
+        <h3 class="mb-3">@_localizer.GetString("MostPopularReviews")</h3>
         @foreach (var review in Model.MostLikedReviews)
         {
             <partial name="_ReviewPeak" model="review" />
@@ -24,7 +24,7 @@
     </div>
    
     <div class="col-6">
-        <h3 class="mb-3">Latest reviews</h3>
+        <h3 class="mb-3">@_localizer.GetString("LatestReviews")</h3>
         @foreach (var review in Model.LatestReviews)
         {
             <partial name="_ReviewPeak" model="review" />
@@ -32,6 +32,6 @@
     </div>
 
     <div class="text-center">
-        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Reviews">View All Reviews</a>
+        <a class="btn btn-outline-primary" asp-action="Index" asp-controller="Reviews">@_localizer.GetString("ViewAllReviews")</a>
     </div>
 </div>

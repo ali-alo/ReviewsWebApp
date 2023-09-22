@@ -325,3 +325,29 @@ comments-section {
 .text-purple {
     color: purple;
 }
+
+.btn-google {
+    background-color: #FF5722;
+    color: #ffffff !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+    .btn-google:hover {
+        background-color: #E64A19;
+    }
+
+.btn-twitter {
+    background-color: #1da1f2;
+    color: #ffffff !important; 
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+    .btn-twitter:hover {
+        background-color: #1990e0;
+    }
