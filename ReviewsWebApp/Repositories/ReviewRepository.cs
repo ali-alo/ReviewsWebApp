@@ -16,12 +16,49 @@ namespace ReviewsWebApp.Repositories
             _context = context;
         }
 
-        public async Task<List<ReviewDetailsDto>> GetAllReviews()
+        public async Task<List<ReviewDetailsDto>> GetReviews(int pageNumber, int takeAmount = 8)
         {
+            if (pageNumber < 0)
+                return new List<ReviewDetailsDto>();
+            if (pageNumber == 0)
+                pageNumber++;
             return await _context.Reviews
                 .IncludeCommon()
+                .OrderByDescending(r => r.CreatedAt)
                 .Select(r => MapToDto(r))
+                .Skip((pageNumber -1) * takeAmount)
+                .Take(takeAmount)
                 .ToListAsync();
+        }
+
+        public async Task<(int pagesCount, bool isFirstPage, bool isLastPage)> GetAllReviewsPaginationInfo(int pageNumber, int takeAmount = 8)
+        {
+            int reviewsCount = await _context.Reviews.CountAsync();
+            return GetPagesInfo(reviewsCount, pageNumber, takeAmount);
+        }
+
+        public async Task<List<ReviewDetailsDto>> GetReviewsByTag(string tagName, int pageNumber, int takeAmount = 8)
+        {
+            if (pageNumber < 0)
+                return new List<ReviewDetailsDto>();
+            if (pageNumber == 0)
+                pageNumber++;
+            return await _context.Reviews
+            .IncludeCommon()
+            .Where(r => r.Tags.Any(t => t.Name == tagName.Trim().ToLower()))
+            .OrderByDescending(r => r.UsersWhoLiked.Count())
+            .Select(r => MapToDto(r))
+            .Skip((pageNumber - 1) * takeAmount)
+            .Take(takeAmount)
+            .ToListAsync();
+        }
+
+        public async Task<(int pagesCount, bool isFirstPage, bool isLastPage)> GetReviewsByTagPaginationInfo(string tagName, int pageNumber, int takeAmount = 8)
+        {
+            int reviewsCount = await _context.Reviews
+                .Where(r => r.Tags.Any(t => t.Name == tagName.Trim().ToLower()))
+                .CountAsync();
+            return GetPagesInfo(reviewsCount, pageNumber, takeAmount);
         }
 
         public async Task CreateReview(Review review)
@@ -49,7 +86,7 @@ namespace ReviewsWebApp.Repositories
             .Select(r => MapToDto(r))
             .Skip(skipAmount)
             .Take(takeAmount)
-                .ToListAsync();
+            .ToListAsync();
 
         public async Task<List<ReviewDetailsDto>> GetMoreRecentReviews(int takeAmount = 3, int skipAmount = 0) => await 
             _context.Reviews
@@ -134,15 +171,6 @@ namespace ReviewsWebApp.Repositories
             .Select(r => MapToDto(r))
             .ToListAsync();
 
-        public async Task<List<ReviewDetailsDto>> GetReviewsByTag(string tagName) => await
-            _context.Reviews
-            .IncludeCommon()
-            .Where(r => r.Tags.Any(t => t.Name == tagName.Trim().ToLower()))
-            .OrderByDescending(r => r.UsersWhoLiked.Count())
-            .Select(r => MapToDto(r))
-            .ToListAsync();
-
-
         public async Task<int> UserAlreadyLeftReview(int reviewItemId, string userId)
         {
             var existingReviewId = await _context.Reviews
@@ -182,5 +210,18 @@ namespace ReviewsWebApp.Repositories
                 UsersIdWhoLiked = review.UsersWhoLiked.Select(u => u.Id).ToList(),
                 Tags = review.Tags,
             };
+
+        private (int pagesCount, bool isFirstPage, bool isLastPage) GetPagesInfo(int reviewsCount, int pageNumber, int takeAmount = 8)
+        {
+            int pagesCount = (int)Math.Ceiling(reviewsCount / (decimal)takeAmount);
+            bool isFirstPage = false;
+            bool isLastPage = false;
+            pageNumber = pageNumber == 0 ? 1 : pageNumber;
+            if (pageNumber == 1)
+                isFirstPage = true;
+            if (pageNumber * takeAmount >= reviewsCount)
+                isLastPage = true;
+            return (pagesCount, isFirstPage, isLastPage);
+        }
     }
 }

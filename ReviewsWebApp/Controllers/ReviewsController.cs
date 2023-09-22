@@ -21,8 +21,8 @@ namespace ReviewsWebApp.Controllers
         private readonly ICommentRepository _commentRepository;
         private readonly ISearchService _searchService;
 
-        public ReviewsController(IMapper mapper, IImageService imageService, ISearchService searchService, 
-            IReviewRepository reviewRepository, ITagRepository tagRepository, 
+        public ReviewsController(IMapper mapper, IImageService imageService, ISearchService searchService,
+            IReviewRepository reviewRepository, ITagRepository tagRepository,
             IReviewItemRepository reviewItemRepository, ICommentRepository commentRepository)
         {
             _mapper = mapper;
@@ -34,11 +34,15 @@ namespace ReviewsWebApp.Controllers
             _commentRepository = commentRepository;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string tagName, int pageNumber)
         {
             var containerLink =  _imageService.GetContainerLink();
-            var reviews = await _reviewRepository.GetAllReviews();
-            return View(new ReviewsIndexViewModel { Reviews = reviews, ContainerLink = containerLink });
+            var reviews = tagName == null ? await _reviewRepository.GetReviews(pageNumber) 
+                                          : await _reviewRepository.GetReviewsByTag(tagName, pageNumber);
+            (int pagesCount, bool isFirstPage, bool isLastPage) = 
+                tagName == null ? await _reviewRepository.GetAllReviewsPaginationInfo(pageNumber)
+                                : await _reviewRepository.GetReviewsByTagPaginationInfo(tagName, pageNumber);
+            return View(new ReviewsIndexViewModel(reviews, containerLink, pagesCount, pageNumber, isFirstPage, isLastPage, tagName!));
         }
 
         [Authorize]
@@ -192,13 +196,6 @@ namespace ReviewsWebApp.Controllers
                 && r.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
             model.CommentForm.Grade = userRatedReview == null ? 0 : userRatedReview.Rating;
             return View(model);
-        }
-
-        public async Task<ActionResult> SearchByTag(string tagName)
-        {
-            var reviews =  await _reviewRepository.GetReviewsByTag(tagName);
-            var containerLink = _imageService.GetContainerLink();
-            return View("Index", new ReviewsIndexViewModel { Reviews = reviews, ContainerLink = containerLink });
         }
 
         private async Task<bool> TryUpdateReviewImages(ReviewDto reviewDto, IEnumerable<string> oldImageGuids)

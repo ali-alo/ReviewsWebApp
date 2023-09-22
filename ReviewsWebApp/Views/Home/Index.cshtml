@@ -10,7 +10,7 @@
     @for (int i = 1; i <= Model.Tags.Count(); i++)
     {
         string tagName = Model.Tags[i - 1].Name;
-        <a asp-action="SearchByTag" asp-controller="Reviews" asp-route-tagName="@tagName"><span class="ms-2 fs-6 badge  rounded-pill @(i % 2 == 0 ? "bg-secondary" : "bg-dark")">@tagName</span></a>
+        <a asp-action="Index" asp-controller="Reviews" asp-route-tagName="@tagName"><span class="ms-2 fs-6 badge  rounded-pill @(i % 2 == 0 ? "bg-secondary" : "bg-dark")">@tagName</span></a>
     }
 </div>
 
